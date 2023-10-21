@@ -183,6 +183,13 @@ CURRENT BUGS:
 (define trip-start #f)
 (define trip-cooldown 0)
 
+(define target-explode #f)
+(define target-explode-start #f)
+(define explode-frames 0)
+(define explode-frame-start #f)
+(define dark-jacked? #f)
+(define dark-jacked! #f)
+
 (define dt-frame-start #f)
 (define dt-count 0)
 (define dt-control #f)
@@ -193,7 +200,7 @@ CURRENT BUGS:
 
 (define mod-default-gun 1)
 
-(define ability-stopped? #f)
+(define all-modifiers-off? #f)
 (define mission-grab-1 #f)
 (define mission-grab-2 #f)
 (define mission-grab-3 #f)
@@ -307,12 +314,13 @@ CURRENT BUGS:
 
 
      
-        ;;;;;;;;;;;;;WEAPON MOD HANDOUT;;;;;;;;;;;;;;;;;;
-(when (not (= (-> (level-get-target-inside *level*) name) 'skatea)) ;simple, if not in stadium, the hoverboard obj will not act like a weapon mod.
-      (set! wm-roll-rand #t) ;this will execute every time a weapon mod is dropped. I have yet to figure out where to put this upon pickup
-     )
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;LEGENDARY WEAPON MOD HANDOUT;;;;;;;;;;;;;;;;;;
 
+(when (not (= (-> (level-get-target-inside *level*) name) 'skatea)) ;simple, if not in stadium, the hoverboard obj will not act like a weapon mod.
+  (set! wm-roll-rand #t) ;this will execute every time a weapon mod is dropped. I have yet to figure out where to put this upon pickup
+) 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
 
@@ -330,8 +338,6 @@ CURRENT BUGS:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;|#
 
     (defun runs-every-frame ()
-
-
 
 
 
@@ -369,7 +375,7 @@ CURRENT BUGS:
 )
 
 (when (= mod-pick #t)
-  (set! mod-rand (rand-vu-int-range 1 5))
+  (set! mod-rand (rand-vu-int-range 1 6))
   (when (= mod-rand 1)
     (set! (-> *game-info* fuel) 1.0)
     (set! mod-pick #f)
@@ -396,8 +402,9 @@ CURRENT BUGS:
     (print "rolled for Trip Jak / Metalheads!")
   )
   (when (= mod-rand 6)
-    (set! (-> *game-info* fuel) 6.0) ;added but not used
+    (set! (-> *game-info* fuel) 6.0)
     (set! mod-pick #f)
+    (print "rolled for Target Explode / DarkJakLonger!")
   )
 )
 
@@ -426,15 +433,16 @@ CURRENT BUGS:
     (set! leg-got? #t)
   )
   ;Modifier Saves
-  (when (and (= (-> *game-info* fuel) 0.0)(= ability-stopped? #f)) ;if none
+  (when (and (= (-> *game-info* fuel) 0.0)(= all-modifiers-off? #f)) ;if none
     (set! hell-mode-option #f)
     (set! peacemaker-ability #f)
     (set! hover-damage #f)
     (set! dark-traffic #f)
     (set! tp-fb #f)
-    (set! ability-stopped? #t)
+    (set! all-modifiers-off? #t)
     (set! weapon-mod-toggle #f)
     (set! trip-metalheads #f)
+    (set! target-explode #f)
   )
 
   (when (and (= (-> *game-info* fuel) 1.0)(= peacemaker-ability #f)) ;if 1, peacemaker ability
@@ -443,9 +451,10 @@ CURRENT BUGS:
     (set! tp-fb #f)
     (set! hover-damage #f)
     (set! dark-traffic #f)
-    (set! ability-stopped? #f)
+    (set! all-modifiers-off? #f)
     (set! weapon-mod-toggle #t)
     (set! trip-metalheads #f)
+    (set! target-explode #f)
   )
 
 
@@ -455,9 +464,10 @@ CURRENT BUGS:
     (set! hover-damage #f)
     (set! dark-traffic #f)
     (set! peacemaker-ability #f)
-    (set! ability-stopped? #f)
+    (set! all-modifiers-off? #f)
     (set! weapon-mod-toggle #t)
     (set! trip-metalheads #f)
+    (set! target-explode #f)
   )
   (when (and (= (-> *game-info* fuel) 3.0)(= hover-damage #f)) ;if 3, hover-damage
     (set! hell-mode-option #f)
@@ -465,9 +475,10 @@ CURRENT BUGS:
     (set! dark-traffic #f)
     (set! peacemaker-ability #f)
     (set! tp-fb #f)
-    (set! ability-stopped? #f)
+    (set! all-modifiers-off? #f)
     (set! weapon-mod-toggle #t)
     (set! trip-metalheads #f)
+    (set! target-explode #f)
   )
   (when (and (= (-> *game-info* fuel) 4.0)(= dark-traffic #f)) ;if 4, dark-traffic
     (set! hell-mode-option #f)
@@ -475,19 +486,32 @@ CURRENT BUGS:
     (set! hover-damage #f)
     (set! peacemaker-ability #f)
     (set! tp-fb #f)
-    (set! ability-stopped? #f)
+    (set! all-modifiers-off? #f)
     (set! weapon-mod-toggle #t)
     (set! trip-metalheads #f)
+    (set! target-explode #f)
   )
-  (when (and (= (-> *game-info* fuel) 5.0)(= trip-metalheads #f)) ;if 4, dark-traffic
+  (when (and (= (-> *game-info* fuel) 5.0)(= trip-metalheads #f)) ;if 5, trip-metalheads
     (set! hell-mode-option #f)
     (set! dark-traffic #f)
     (set! hover-damage #f)
     (set! peacemaker-ability #f)
     (set! tp-fb #f)
-    (set! ability-stopped? #f)
+    (set! all-modifiers-off? #f)
     (set! weapon-mod-toggle #t)
     (set! trip-metalheads #t)
+    (set! target-explode #f)
+  )
+  (when (and (= (-> *game-info* fuel) 6.0)(= target-explode #f)) ;if 6, target-explode
+    (set! hell-mode-option #f)
+    (set! dark-traffic #f)
+    (set! hover-damage #f)
+    (set! peacemaker-ability #f)
+    (set! tp-fb #f)
+    (set! all-modifiers-off? #f)
+    (set! weapon-mod-toggle #t)
+    (set! trip-metalheads #f)
+    (set! target-explode #t)
   )
   (when (and (= (-> *game-info* fuel) 10.0)(= hell-mode-option #f)) ;if 10, hell mode }:)
     (set! hell-mode-option #t)
@@ -496,8 +520,9 @@ CURRENT BUGS:
     (set! hover-damage #t)
     (set! peacemaker-ability #t)
     (set! tp-fb #t)
-    (set! ability-stopped? #f)
+    (set! all-modifiers-off? #f)
     (set! weapon-mod-toggle #t)
+    (set! target-explode #t)
   )
 
 
@@ -588,16 +613,20 @@ CURRENT BUGS:
 )
 
 
-(when (logtest? (-> *game-info* secrets) (game-secrets hero-mode)) ;sets hero-mode to have hell-mode enabled.
-        (when (= hell-mode-option #f)
-          (set! (-> *game-info* fuel) 10.0)
-        )
-      )
-(when (not (logtest? (-> *game-info* secrets) (game-secrets hero-mode))) ;sets hero-mode to have hell-mode enabled.
-        (when (= hell-mode-option #t)
-          (set! hell-mode-option #f)
-        )
-      )
+(when (and (logtest? (-> *game-info* secrets) (game-secrets hero-mode))(!= (-> *game-info* fuel) 10.0)) ;if you're in hero-mode, sets to have hell-mode enabled in your save.
+    (set! (-> *game-info* fuel) 10.0)
+)
+(when (and (not (logtest? (-> *game-info* secrets) (game-secrets hero-mode)))(= hell-mode-option #t)) ;if you're not in hero-mode, but you have set hell-mode on prior, set all to off.
+    (set! hell-mode-option #f)
+    (set! peacemaker-ability #f)
+    (set! hover-damage #f)
+    (set! dark-traffic #f)
+    (set! tp-fb #f)
+    (set! all-modifiers-off? #t)
+    (set! weapon-mod-toggle #f)
+    (set! trip-metalheads #f)
+    (set! target-explode #f)
+)
 
 
 
@@ -707,9 +736,9 @@ CURRENT BUGS:
       (vector-normalize! (-> s4-1 vel) 819200.0)
       (set! (-> *game-info* secrets) (game-secrets invulnerable))
       (spawn-projectile guard-shot s4-1 (ppointer->process (-> *target* gun gun)) *default-dead-pool*)
-      )
-    (set! wm-roll-shot 0)
+      (set! wm-roll-shot 0)
         (set! wm-rand-shot #f)
+      )
         )
         (when (= wm-roll-shot 5)
           (rlet ((acc :class vf)
@@ -1072,14 +1101,16 @@ CURRENT BUGS:
 ;same thing as above, but for guard shot
 (when (= inv-frame-start-g #t)
   (+! inv-frame-counter-g 1)
-  (when (> inv-frame-counter-g 2)
-  (when (not (logtest? (-> *game-info* secrets) (game-secrets hero-mode)))
-    (set! (-> *game-info* secrets) (game-secrets )) ;this also makes it so that theres no game secrets allowed when using predator/guard shot. I could be lazy and make it for all of them
-  )
-  (when (logtest? (-> *game-info* secrets) (game-secrets hero-mode))
-    (set! (-> *game-info* secrets) (game-secrets hero-mode)) ;this also makes it so that theres no game secrets allowed when using predator/guard shot. I could be lazy and make it for all of them
-  )
-
+  (when (> inv-frame-counter-g 1)
+    (when (not (logtest? (-> *game-info* secrets) (game-secrets hero-mode)))
+      (set! (-> *game-info* secrets) (game-secrets ))
+      (when (and (not (logtest? (-> *game-info* secrets) (game-secrets hero-mode)))(= (-> *game-info* fuel) 10.0))
+      (set! (-> *game-info* secrets) (game-secrets hero-mode))
+    )
+    )
+    (when (logtest? (-> *game-info* secrets) (game-secrets hero-mode))
+      (set! (-> *game-info* secrets) (game-secrets hero-mode))
+    )
     (set! inv-frame-counter-g 0)
     (set! inv-frame-start-g #f)
   )
@@ -1270,7 +1301,7 @@ All of the variables set are for time-based events based off of frames |#
   (when (= start-frame-count #t)
     (+! frame-count 1)
   )
-  (when (and (and (and (= stored-cp? #f)(= tp-fb #t)(rand-vu-percent? 0.001)(< (-> *target* fact health) 1)))) ;looks for teleport percentage upon death, if so, init new game.
+  (when (and (and (and (= stored-cp? #f)(= tp-fb #t)(rand-vu-percent? 0.0004)(< (-> *target* fact health) 1)))) ;looks for teleport percentage upon death, if so, init new game.
     (auto-save-user)
     (set! start-frame-count #t)
     (set! stored-cp? #t)
@@ -1293,6 +1324,12 @@ All of the variables set are for time-based events based off of frames |#
   (when (and (and (= frame-count 30)(= new-game-s? #t)(= stored-cp? #t))) ;starts after a little bit to avoid crashes, teleports jak to final boss spawnpoint and sets the game task
     (start 'play (get-continue-by-name *game-info* "nestb-boss-pit"))
     (play-task (game-task nest-boss) 'debug #f)
+    (when (= hell-mode-option #t)
+      (set! (-> *game-info* fuel) 10.0)
+    )
+    (when (= hell-mode-option #f)
+      (set! (-> *game-info* fuel) 2.0)
+    )
     (set! start-frame-count #f)
     (set! frame-count 0)
     (set! going-back-tp #t)
@@ -1334,34 +1371,85 @@ All of the variables set are for time-based events based off of frames |#
 
 ;trip-metalheads function
 ;--------------------------------------------
-(when (and (or (cpad-pressed? 0 l1)(cpad-pressed? 0 r1)(cpad-pressed? 0 x)(cpad-pressed? 0 square)(cpad-pressed? 0 circle))(rand-vu-percent? 0.008)(= trip-metalheads #t))
-  (send-event *target* 'loading)
-  (set! trip-start #t)
-  (when (and (send-event *target* 'loading)(= trip-cooldown 0))
-    (+! (-> *game-info* gem) 10.0)
-    (set! trip-start #f)
-    (set! trip-cooldown 2000)
+
+  (when (and (or (cpad-pressed? 0 l1)(cpad-pressed? 0 r1)(cpad-pressed? 0 x)(cpad-pressed? 0 square)(cpad-pressed? 0 circle))(rand-vu-percent? 0.008)(= trip-metalheads #t))
+    (send-event *target* 'loading)
+    (set! trip-start #t)
+    (when (and (send-event *target* 'loading)(= trip-cooldown 0))
+      (+! (-> *game-info* gem) 10.0)
+      (set! trip-start #f)
+      (set! trip-cooldown 8000)
+    )
+  )
+
+  (when (= trip-start #t)
+    (when (> trip-cooldown 0)
+      (-! trip-cooldown 1)
+    )
+  )
+
+
+
+;target-explode
+#|
+(when (= target-explode-start #t)
+  (send-event *target* 'draw #f)
+  (set! (-> *target* fact health) 0.0)
+  (set! explode-frame-start #t)
+  (auto-save-user)
+)
+(when (= explode-frame-start #t)
+  (+! explode-frames 1)
+  (when (= explode-frames 90)
+    (auto-save-command 'restore 0 0 *default-pool* #f)
   )
 )
 
-(when (= trip-start #t)
-  (when (> trip-cooldown 0)
-    (-! trip-cooldown 1)
-  )
+|#
+
+(when (= target-explode-start #t)
+  (sound-play "explosion")
+  (send-event *target* 'draw #f)
+  (let ((a1-0 (new 'stack-no-clear 'event-message-block)))
+      (set! (-> a1-0 from) (process->ppointer *target*))
+      (set! (-> a1-0 num-params) 2)
+      (set! (-> a1-0 message) 'attack-invinc)
+      (set! (-> a1-0 param 0) (the-as uint #f))
+      (let ((v1-3 (new 'static 'attack-info :mask (attack-info-mask mode id))))
+        (let* ((a0-1 *game-info*)
+               (a2-1 (+ (-> a0-1 attack-id) 1))
+               )
+          (set! (-> a0-1 attack-id) a2-1)
+          (set! (-> v1-3 id) a2-1)
+          )
+        (set! (-> v1-3 mode) 'big-explosion)
+        (set! (-> a1-0 param 1) (the-as uint v1-3))
+        )
+      (send-event-function *target* a1-0)
+      )
+      (set! target-explode-start #f)
 )
 
 
+(when (= dark-jacked? #t)
+    (when (= target-explode #f)
+          (set! (-> (the-as fact-info-target (-> *target* fact)) darkjak-effect-time) (seconds 20))
+        )
+    (when (= target-explode #t)
+          (set! (-> (the-as fact-info-target (-> *target* fact)) darkjak-effect-time) (seconds 60))
+        )
+    (set! dark-jacked? #f)
+  )
+
+;(set! (-> *game-info* eco-pill-dark) (-> *FACT-bank* eco-pill-dark-max-default))
+;(set! dark-jacked? #t) ;added for fix
+
+;TODO need to set this so it runs when jak loads in
 
 
-
-
-
-
-
-
-
-
-
+(when (cpad-pressed? 0 l2)
+  (set! dark-jacked? #t)
+)
 
 
 
@@ -1432,7 +1520,6 @@ All of the variables set are for time-based events based off of frames |#
 
     (defun runs-on-jak-spawn ()
       ;; Code here runs every time jak spawns (loading a file new game or death)   
-
       (none)
       )
 
@@ -1440,10 +1527,10 @@ All of the variables set are for time-based events based off of frames |#
       (case death-event
         (('dying)
           ;; Code here runs immediately every time jak dies, before any death animation or death cutscene
-          (start 'play (get-continue-by-name *game-info* "nestb-start"))
+
           )
         (('blackout)
-          (set! start-tp #t)
+
           )
         )
       
@@ -1530,7 +1617,11 @@ dark-traffic                      Every dark eco you collect has a chance to fil
 trip-metalheads                   jumping, punching, spinning, rolling, or shooting can make jak trip at a low chance
                                   but every time this happens, you get 10 free metal-head gems (cooldown 2000 frames)
 
+target-explode                    jak has a bomb strapped to his chest and if he takes damage he has a chance of exploding
+                                  but dark jak lasts a lot longer
+
 hell-mode-option                  enabled automatically when in hero-mode. This enables all modifiers }:) good luck
+
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------
 "
 )

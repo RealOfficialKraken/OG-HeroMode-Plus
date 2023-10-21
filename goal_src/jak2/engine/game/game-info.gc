@@ -616,7 +616,7 @@
               (talker-spawn-func (-> *talker-speech* 79) *entity-pool* (target-pos 0) (the-as region #f))
               )
           (+! (-> obj eco-pill-dark-total) arg1)
-          (when (and (rand-vu-percent? 0.003)(= dark-traffic #t))
+          (when (and (rand-vu-percent? 0.03)(= dark-traffic #t))
       (set! (-> *game-info* eco-pill-dark) (-> *FACT-bank* eco-pill-dark-max-default))
     )
           )
