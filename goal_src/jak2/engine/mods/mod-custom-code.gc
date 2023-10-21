@@ -174,6 +174,7 @@ CURRENT BUGS:
 (define start-frame-count #f)
 (define going-back-tp #f)
 (define stored-cp? #f)
+(define pause-menu-blocked? #f)
 
 (define hover-damage #f)
 
@@ -1324,6 +1325,7 @@ All of the variables set are for time-based events based off of frames |#
   (when (and (and (= frame-count 30)(= new-game-s? #t)(= stored-cp? #t))) ;starts after a little bit to avoid crashes, teleports jak to final boss spawnpoint and sets the game task
     (start 'play (get-continue-by-name *game-info* "nestb-boss-pit"))
     (play-task (game-task nest-boss) 'debug #f)
+    (set! pause-menu-blocked? #t)
     (when (= hell-mode-option #t)
       (set! (-> *game-info* fuel) 10.0)
     )
@@ -1364,6 +1366,9 @@ All of the variables set are for time-based events based off of frames |#
     (print "It worked!! POGGERS!!! (I logged 42 hours on this problem :D)")
   )
 
+(when (= pause-menu-blocked? #t)
+  (set! (-> *setting-control* user-current allow-pause) #f)
+)
 
 
 
@@ -1602,11 +1607,11 @@ GREEN ECO MODS(modifiers): Each mod works differently, but I keep all of it on a
 Example: (set! peacemaker-ability #t)
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-peacemaker-ability                at any given points in the game, jak has a chance to fire 100 peacemaker shots
-                                  but you must one-hit every boss.
+peacemaker-ability                at any given points in the game, jak has a chance to fire 100 peacemaker shots out of his gun
+                                  but you must one-hit every boss fight in the game.
 
-tp-fb                             upon death, there's a 0.01% chance per death frame that jak will tp to the final boss
-                                  BUT the final boss is extremely unfair, and if you die you're sent back to your original area.
+tp-fb                             upon death, theres a good chance jak will respawn at the final boss fight,
+                                  BUT the final boss is extremely unfair, no saving is allowed, and no checkpoints are stored.
 
 hover-damage                      Your hoverboard goes much faster, tricks virtually mean nothing for speed
                                   but mostly all enemies (except guards in traffic) have X5 HP. (oof)
