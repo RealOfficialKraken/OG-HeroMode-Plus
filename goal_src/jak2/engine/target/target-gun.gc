@@ -7,24 +7,24 @@
 
 ;; DECOMP BEGINS
 
-;gun-mod definitions
+;gun-mod definitions (modifier definitions in mod-custom-code.gc)
 ;---------------------------------------
-(define rapid-fire-option #f)
-(define rapid-fire-int 0)
-(define double-tap-option #f)
-(define double-tap-int 0)
-(define infinite-range-option #f)
-(define infinite-range-int 0)
-(define rapid-cycle-option #f)
-(define rapid-cycle-int 0)
-(define big-shot-option #f)
-(define big-shot-int 0)
-(define pm-extra-shot-option #f)
-(define pm-extra-shot-int 0)
-(define predator-shot-option #f)
-(define predator-shot-int 0)
-(define guard-shot-option #f)
-(define guard-shot-int 0)
+(define rapid-fire-option #f) ;option for if its enabled/gotten
+(define rapid-fire-int 0) ;option for weapon 1-4
+(define double-tap-option #f) ;option for if its enabled/gotten
+(define double-tap-int 0);option for weapon 1-4
+(define infinite-range-option #f) ;option for if its enabled/gotten
+(define infinite-range-int 0);option for weapon 1-4
+(define rapid-cycle-option #f) ;option for if its enabled/gotten
+(define rapid-cycle-int 0);option for weapon 1-4
+(define big-shot-option #f) ;option for if its enabled/gotten
+(define big-shot-int 0);option for weapon 1-4
+(define pm-extra-shot-option #f) ;option for if its enabled/gotten
+(define pm-extra-shot-int 0);option for weapon 1-4
+(define predator-shot-option #f) ;option for if its enabled/gotten
+(define predator-shot-int 0);option for weapon 1-4
+(define guard-shot-option #f) ;option for if its enabled/gotten
+(define guard-shot-int 0);option for weapon 1-4
 
 
 (define peacemaker-ability #f)
@@ -736,10 +736,11 @@
          (set! (-> self gun track-angle-mult) 1.75)
          (set! (-> self gun track-require) (the-as uint 3))
          (set! (-> self gun fire-delay) (the-as uint 96))
+         (set! (-> self gun combo-fire-delay) (the-as uint 30))
          (when (and (= rapid-fire-option #t) (= rapid-fire-int 1))
             (set! (-> self gun fire-delay) (the-as uint 30))
+            (set! (-> self gun combo-fire-delay) (the-as uint 30))
             )
-         (set! (-> self gun combo-fire-delay) (the-as uint 45))
          (set! (-> self gun track-beam-size) 819.2)
          (when (and (= big-shot-option #t) (= big-shot-int 1))
           (set! (-> self gun track-beam-size) 3000.0)

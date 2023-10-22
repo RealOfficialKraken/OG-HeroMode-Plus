@@ -5,6 +5,8 @@
 ;; name in dgo: collectables
 ;; dgos: ENGINE, GAME
 
+(define-extern trip-metalheads symbol) ;added for build order
+
 (defenum collectable-flag
   :type uint32
   :bitfield #t
@@ -1867,7 +1869,7 @@ This commonly includes things such as:
   )
 
 (defmethod initialize-allocations gem ((obj gem))
-  (+! (-> *game-info* live-gem-count) 1)
+    (+! (-> *game-info* live-gem-count) 1)
   (stack-size-set! (-> obj main-thread) 128)
   (let ((s5-0 (new 'process 'collide-shape-moving obj (collide-list-enum hit-by-player))))
     (set! (-> s5-0 dynam) (copy *standard-dynamics* 'process))

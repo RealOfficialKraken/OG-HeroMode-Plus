@@ -7,10 +7,21 @@
 
 
 
-    #|
+    #| do (print help) in repl to see this
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 What are the commands to set your Green Eco or Gun Mod?
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+ALL WEAPON MODS ARE TOGGLED OFF BY DEFAULT, ONCE YOU SET IT ON AND SAVE, THERES NO GOING BACK ON YOUR SAVE.
+(unless you set weapon-mod-toggle to false and (-> *game-info* fuel) to 0, then save)
+
+
+you can set it via (set! weapon-mod-toggle #t) 
+(this will choose a random modifier for you)
+
+If you want to re-roll for another modifier you can do so with
+(set! mod-reroll #t)
+You must have 10 metalhead gems to reroll.
 
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -21,10 +32,11 @@ Example:
 (set! rapid-fire-int V)
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+
 rapid-fire-option                 Fire rate increased dramatically
 rapid-fire-int
 
-double-tap-option                 Every shot has a chance to fire 2
+double-tap-option                 Every shot has a chance to fire a second without consuming ammo
 double-tap-int
 
 infinite-range-option             Every shot follows newtons law              (not working)
@@ -33,23 +45,47 @@ infinite-range-int                (meaning every shot has a max range of 999)
 big-shot-option                   bigger bullets, bigger hitbox, right?       (not working)
 big-shot-int
 
-pm-extra-shot-option              Every shot has a chance to fire a peacemaker shot :)
+mag-bag-option                    x3 the ammo on the weapon its attached to (not implemented yet)
+mag-bad-int
+
+pm-extra-shot-option              Every shot has a chance to fire a peacemaker shot :) (this can also be pulled as a legendary)
 pm-extra-shot-int
 
 predator-shot-option              Every shot has a good chance to spawn a predator shot with it
-predator-shot-int
+predator-shot-int                 (this is deprecated, pred shot is in random-shot only, still works for the most part)
 
-Every guard that spawns will have a chance to drop a Weapon Mod, alongside some other enemies for legendaries.
+guard-shot-option                 Every shot has a good chance to spawn a guard shot with it
+guard-shot-int
+
+leg-random-shot                   Your gun can fire every shot known to man.
+leg-random-int
+
+Every guard that spawns will have a chance to drop a legendary weapon mod. All others are done via missions or burning-bush.
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------
-GREEN ECO MODS: Each mod works differently, but I try to keep all of it on a toggle boolean.
+GREEN ECO MODS(modifiers): Each mod works differently, but I keep all of it on a toggle boolean.
 Example: (set! peacemaker-ability #t)
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-peacemaker-ability                at any given points in the game, jak has a chance to fire 100 peacemaker shots
-;                                 but any time you anger the guards, its max alert level
+peacemaker-ability                at any given points in the game, jak has a chance to fire 100 peacemaker shots out of his gun
+                                  but you must one-hit every boss fight in the game.
 
-tp-fb                             upon death, there's a 0.01% chance per death frame that jak will tp to the final boss.
-;                                 BUT the final boss is extremely unfair, and if you die you're sent back to your original area.
+tp-fb                             upon death, theres a good chance jak will respawn at the final boss fight,
+                                  BUT the final boss is extremely unfair, no saving is allowed, and no checkpoints are stored.
+
+hover-damage                      Your hoverboard goes much faster, tricks virtually mean nothing for speed
+                                  but mostly all enemies (except guards in traffic) have X5 HP. (oof)
+
+dark-traffic                      Every dark eco you collect has a chance to fill your darkjak meter 100%
+                                  but any time jak angers the guards, its max alert level
+
+trip-metalheads                   jumping, punching, spinning, rolling, or shooting can make jak trip at a low chance
+                                  but every time this happens, you get 10 free metal-head gems (cooldown 2000 frames)
+
+target-explode                    jak has a bomb strapped to his chest and if he takes damage he has a chance of exploding
+                                  but dark jak lasts a lot longer
+
+hell-mode-option                  enabled automatically when in hero-mode. This enables all modifiers }:) good luck
+
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -138,27 +174,29 @@ CURRENT BUGS:
 #|;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;      Var Definitions     ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;|#
+
+;Modifier Definitions (gun-mod definitions in target-gun.gc)
+(define mod-reroll #f) ;toggle on to reroll your current mod for 10 metalhead gems
 (define mod-rand 0)
 (define mod-pick #f)
-(define mod-reroll #f)
 
-(define hell-mode-option #f)
+(define hell-mode-option #f) ;toggle on to set hell-mode on (just turn on hero-mode)
 
-(define weapon-mod-toggle #f)
+(define weapon-mod-toggle #f) ;The option thats asked at the beginning, toggling this on will choose a random modifier for jak.
 (define wm-drop #f) ;Turns on weapon mods dropping off the next spawned enemy that can drop mods.
-(define wm-leg #f)
+(define wm-leg #f) ;sees if a legendary has dropped, if toggled on, the game will never drop a legendary
 (define wm-roll-rand #f)
 (define wm-roll-numb 0)
-(define wm-rand-shot #f)
+(define wm-rand-shot #f) ;toggle on to enable random shot, a legendary gun mod
 (define wm-roll-shot 0)
 (define inv-frames? #f)
 
-(define test-option #f)
-(define mod-all-yellow #f)
-(define mod-all-blue #f)
-(define mod-all-red #f)
-(define mod-all-dark #f)
-(define mod-all-green #f)
+
+(define test-option #f) ;test projectile
+(define mod-all-yellow #f) ;sets all gunmods to yellow gun
+(define mod-all-blue #f) ;sets all gunmods to blue gun
+(define mod-all-red #f) ;sets all gunmods to red gun
+(define mod-all-dark #f) ;sets all gunmods to peacemaker
 (define mod-all-off #t)
 (define mod-turning-off #f)
 
@@ -167,7 +205,7 @@ CURRENT BUGS:
 (define-extern gun-dark-present? symbol)
 (define pm-offset-y (new 'static 'vector :x (meters 0) :y (meters 2) :z (meters 0) :w 1.0))
 
-(define tp-fb #f) ; Chance to teleport for final boss
+(define tp-fb #f) ; toggle on for a chance to teleport for final boss upon death
 (define start-tp #f)
 (define new-game-s? #f)
 (define frame-count 0)
@@ -176,15 +214,15 @@ CURRENT BUGS:
 (define stored-cp? #f)
 (define pause-menu-blocked? #f)
 
-(define hover-damage #f)
+(define hover-damage #f) ;toggle on to enable hoverboard mechanics, but enemies have X5 HP
 
-(define dark-traffic #f)
+(define dark-traffic #f) ;toggle on for a chance to get darkjak meter to full off any dark eco, but traffic-alert-4 is set for any illegal activity
 
-(define trip-metalheads #f)
+(define trip-metalheads #f) ;toggle on for a chance to trip, but jak will get 10 metalhead gems every time (on cooldown 4000 frames)
 (define trip-start #f)
 (define trip-cooldown 0)
 
-(define target-explode #f)
+(define target-explode #f) ;toggle on for jak to explode upon taking damage, but dark-jak lasts much longer.
 (define target-explode-start #f)
 (define explode-frames 0)
 (define explode-frame-start #f)
@@ -198,14 +236,15 @@ CURRENT BUGS:
 (define leg-got? #f)
 (define-extern leg-random-int int)
 (define leg-random-shot #f)
+(define leg-dont-fire? #f)
 
 (define mod-default-gun 1)
 
 (define all-modifiers-off? #f)
-(define mission-grab-1 #f)
-(define mission-grab-2 #f)
-(define mission-grab-3 #f)
-(define mission-grab-4 #f)
+(define mission-grab-1 #f) ;sets mission get for weapon mods
+(define mission-grab-2 #f) ;sets mission get for weapon mods
+(define mission-grab-3 #f) ;sets mission get for weapon mods
+(define mission-grab-4 #f) ;sets mission get for weapon mods
 
 
 
@@ -230,6 +269,53 @@ CURRENT BUGS:
 ;WEAPON MODS!
 ;This block below defines the obj for weapon mods dropping from enemies, taken from collectables.gc
 
+#|
+(defmethod deal-damage! guard-shot ((obj guard-shot) (arg0 process)
+  (logior! (-> obj options) (projectile-options account-for-target-velocity deal-damage))
+  (let ((t9-0 (method-of-type projectile deal-damage!)))
+    (when (t9-0 obj arg0 arg1)
+      (set! (-> obj hit-actor?) #f) 
+      #t
+      )
+    )
+
+))
+|#
+
+;sets the bounce-shot function, place in area where impact particles spawn
+#|(when (and (made-impact? gun-yellow-shot) (= bounce-shot-int 1)(= bounce-shot #t))
+    (let ((bounces-left bounces-left))
+      (when (> bounces-left 0)
+        (print "bounced")
+        (-! bounces-left 1)
+        (let ((s5-0 (-> *target* gun))
+        (gp-0 (new 'stack-no-clear 'projectile-init-by-other-params))
+        )
+    (set! (-> gp-0 ent) (-> *target* entity))
+    (set! (-> gp-0 options) (projectile-options account-for-target-velocity deal-damage proj-options-8000))
+    (set! (-> gp-0 pos quad) (-> s5-0 fire-point quad))
+    (set! (-> gp-0 notify-handle) (the-as handle #f))
+    (set! (-> gp-0 owner-handle) (the-as handle #f))
+    (set! (-> gp-0 ignore-handle) (process->handle (the-as process (send-event *target* 'get-vehicle))))
+    (let* ((v1-9 *game-info*)
+           (a0-9 (+ (-> v1-9 attack-id) 1))
+           )
+      (set! (-> v1-9 attack-id) a0-9)
+      (set! (-> gp-0 attack-id) a0-9)
+      )
+    (set! (-> gp-0 timeout) (seconds 4))
+    (vector-float*! (-> gp-0 vel) (-> s5-0 fire-dir-out) 819200.0)
+    (when (!= guard-shot-int 1)
+      (spawn-projectile gun-yellow-shot gp-0 (ppointer->process (-> s5-0 gun)) *default-dead-pool*)           ;;;;;;;;;;;;;;;;;;;;
+    )
+        )
+      )
+      (when (<= bounces-left 0)
+        (print "shot dead")
+      )
+    )
+  )|#
+  
 (defmethod initialize-effects ammo-collectable ((obj ammo-collectable) (arg0 pickup-type))
   (set! (-> obj fact pickup-type) arg0)
   (case arg0
@@ -367,6 +453,9 @@ CURRENT BUGS:
   (when (logtest? (-> *game-info* secrets) (game-secrets hero-mode))
     (print "YOU'RE NOT ALLOWED TO RE-ROLL WHILE IN HELL-MODE }:]")
     (set! mod-reroll #f)
+  )
+  (when (and (not (logtest? (-> *game-info* secrets) (game-secrets hero-mode))) (not (< (-> *game-info* gem) 10.0)) (and (not (logtest? (-> *game-info* secrets) (game-secrets hero-mode)))(>= (-> *game-info* gem) 10.0)))
+  (print "Error, cannot reroll your current modifiers. Type (print help) to set them yourself, or start a new game.")
   )
 )
 
@@ -555,7 +644,7 @@ CURRENT BUGS:
 
   (when (and (task-node-closed? (game-task-node ruins-enemy-introduction))(= mission-grab-3 #f)) ;after blue gun, get chanced guard shot
     (set! mission-grab-3 #t)
-    ;(set! guard-shot-int mod-default-gun)
+    (set! guard-shot-int mod-default-gun)
     (set! guard-shot-option #t)
     (print "Chanced Guard Shot Acquired, please choose gun via (set! guard-shot-int (integer 1 through 4))")
   )
@@ -580,11 +669,13 @@ CURRENT BUGS:
   (when (and (not (task-node-closed? (game-task-node ruins-enemy-introduction)))(= mission-grab-3 #t))
     (set! mission-grab-3 #f)
     (set! guard-shot-option #f)
+    (set! guard-shot-int 0)
   )
 
   (when (and (not (task-node-closed? (game-task-node sewer-escort-get-gun)))(= mission-grab-4 #t))
     (set! mission-grab-4 #f)
     (set! predator-shot-option #f)
+    (set! predator-shot-int 0)
   )
 )
 
@@ -699,6 +790,11 @@ CURRENT BUGS:
         )
         (when (= wm-roll-shot 3)
         (set! inv-frame-start #t)
+        (when (or (= (-> (level-get-target-inside *level*) name) 'caspad)(= (-> (level-get-target-inside *level*) name) 'castle))
+          (set! leg-dont-fire? #t)
+          (set! wm-roll-shot (rand-vu-int-range 1 6))
+        )
+        (when (= leg-dont-fire? #f)
         (let ((s5-0 (-> *target* gun))
           (gp-0 (new 'stack-no-clear 'projectile-init-by-other-params))
           )
@@ -711,10 +807,17 @@ CURRENT BUGS:
           (set! (-> gp-0 owner-handle) (the-as handle #f))
           (set! (-> gp-0 ignore-handle) (process->handle (the-as process (send-event *target* 'get-vehicle))))
           (set! (-> gp-0 timeout) (seconds 4))
-          (set! (-> *game-info* secrets) (game-secrets invulnerable))
+          (set! inv-frame-start-g #t)
+          (when (not (logtest? (-> *game-info* secrets) (game-secrets hero-mode)))
+            (set! (-> *game-info* secrets) (game-secrets invulnerable)) ;this also makes it so that theres no game secrets allowed when using predator/guard shot. I could be lazy and make it for all of them
+          )
+          (when (logtest? (-> *game-info* secrets) (game-secrets hero-mode))
+            (set! (-> *game-info* secrets) (game-secrets invulnerable hero-mode)) ;this also makes it so that theres no game secrets allowed when using predator/guard shot. I could be lazy and make it for all of them
+          )
           (spawn-projectile metalhead-predator-shot gp-0 (ppointer->process (-> *target* gun gun)) *default-dead-pool*)
           (set! wm-roll-shot 0)
         (set! wm-rand-shot #f)
+        )
         )
         )
         (when (= wm-roll-shot 4)
@@ -735,7 +838,13 @@ CURRENT BUGS:
         )
       (set! (-> s4-1 timeout) (seconds 4))
       (vector-normalize! (-> s4-1 vel) 819200.0)
-      (set! (-> *game-info* secrets) (game-secrets invulnerable))
+      (set! inv-frame-start-g #t)
+      (when (not (logtest? (-> *game-info* secrets) (game-secrets hero-mode)))
+    (set! (-> *game-info* secrets) (game-secrets invulnerable)) ;this also makes it so that theres no game secrets allowed when using predator/guard shot. I could be lazy and make it for all of them
+  )
+  (when (logtest? (-> *game-info* secrets) (game-secrets hero-mode))
+    (set! (-> *game-info* secrets) (game-secrets invulnerable hero-mode)) ;this also makes it so that theres no game secrets allowed when using predator/guard shot. I could be lazy and make it for all of them
+  )
       (spawn-projectile guard-shot s4-1 (ppointer->process (-> *target* gun gun)) *default-dead-pool*)
       (set! wm-roll-shot 0)
         (set! wm-rand-shot #f)
@@ -867,7 +976,7 @@ CURRENT BUGS:
   (+! dt-count 1)
 )
 
-(when (> dt-count 4)
+(when (> dt-count 5)
     ;-------------------------------------------YELLOW SHOT-----------------------------------------------------------
     (when (and (!= guard-shot-int 1)(= double-tap-int 1))
       (let ((s5-0 (-> *target* gun))
@@ -910,6 +1019,13 @@ CURRENT BUGS:
       (vector-normalize! (-> s4-1 vel) 819200.0)
       (set! (-> *game-info* secrets) (game-secrets invulnerable))
       (spawn-projectile guard-shot s4-1 (ppointer->process (-> *target* gun gun)) *default-dead-pool*)
+      (set! inv-frame-start-g #t)
+      (when (not (logtest? (-> *game-info* secrets) (game-secrets hero-mode)))
+    (set! (-> *game-info* secrets) (game-secrets invulnerable)) ;this also makes it so that theres no game secrets allowed when using predator/guard shot. I could be lazy and make it for all of them
+  )
+  (when (logtest? (-> *game-info* secrets) (game-secrets hero-mode))
+    (set! (-> *game-info* secrets) (game-secrets invulnerable hero-mode)) ;this also makes it so that theres no game secrets allowed when using predator/guard shot. I could be lazy and make it for all of them
+  )
       )
         )
         ;---------------------------------------------RED SHOT---------------------------------------------------
@@ -1021,7 +1137,13 @@ CURRENT BUGS:
         )
       (set! (-> s4-1 timeout) (seconds 4))
       (vector-normalize! (-> s4-1 vel) 819200.0)
-      (set! (-> *game-info* secrets) (game-secrets invulnerable))
+      (set! inv-frame-start-g #t)
+      (when (not (logtest? (-> *game-info* secrets) (game-secrets hero-mode)))
+    (set! (-> *game-info* secrets) (game-secrets invulnerable)) ;this also makes it so that theres no game secrets allowed when using predator/guard shot. I could be lazy and make it for all of them
+  )
+  (when (logtest? (-> *game-info* secrets) (game-secrets hero-mode))
+    (set! (-> *game-info* secrets) (game-secrets invulnerable hero-mode)) ;this also makes it so that theres no game secrets allowed when using predator/guard shot. I could be lazy and make it for all of them
+  )
       (spawn-projectile guard-shot s4-1 (ppointer->process (-> *target* gun gun)) *default-dead-pool*)
       )
 
@@ -1077,7 +1199,13 @@ CURRENT BUGS:
         )
       (set! (-> s4-1 timeout) (seconds 4))
       (vector-normalize! (-> s4-1 vel) 819200.0)
-      (set! (-> *game-info* secrets) (game-secrets invulnerable))
+      (set! inv-frame-start-g #t)
+      (when (not (logtest? (-> *game-info* secrets) (game-secrets hero-mode)))
+    (set! (-> *game-info* secrets) (game-secrets invulnerable)) ;this also makes it so that theres no game secrets allowed when using predator/guard shot. I could be lazy and make it for all of them
+  )
+  (when (logtest? (-> *game-info* secrets) (game-secrets hero-mode))
+    (set! (-> *game-info* secrets) (game-secrets invulnerable hero-mode)) ;this also makes it so that theres no game secrets allowed when using predator/guard shot. I could be lazy and make it for all of them
+  )
       (spawn-projectile guard-shot s4-1 (ppointer->process (-> *target* gun gun)) *default-dead-pool*)
       )
   )
@@ -1102,7 +1230,7 @@ CURRENT BUGS:
 ;same thing as above, but for guard shot
 (when (= inv-frame-start-g #t)
   (+! inv-frame-counter-g 1)
-  (when (> inv-frame-counter-g 1)
+  (when (> inv-frame-counter-g 2)
     (when (not (logtest? (-> *game-info* secrets) (game-secrets hero-mode)))
       (set! (-> *game-info* secrets) (game-secrets ))
       (when (and (not (logtest? (-> *game-info* secrets) (game-secrets hero-mode)))(= (-> *game-info* fuel) 10.0))
@@ -1302,7 +1430,7 @@ All of the variables set are for time-based events based off of frames |#
   (when (= start-frame-count #t)
     (+! frame-count 1)
   )
-  (when (and (and (and (= stored-cp? #f)(= tp-fb #t)(rand-vu-percent? 0.0004)(< (-> *target* fact health) 1)))) ;looks for teleport percentage upon death, if so, init new game.
+  (when (and (and (and (= stored-cp? #f)(= tp-fb #t)(rand-vu-percent? 0.0007)(< (-> *target* fact health) 1)))) ;looks for teleport percentage upon death, if so, init new game.
     (auto-save-user)
     (set! start-frame-count #t)
     (set! stored-cp? #t)
@@ -1347,10 +1475,11 @@ All of the variables set are for time-based events based off of frames |#
     (auto-save-command 'restore 0 0 *default-pool* #f)
     (print "crash?")
   )
-  (when (and (= going-back-tp #t)(= frame-count 80)) ;resets everything back to original state 10 frames after the game-load, to avoid crashes.
+  (when (and (= going-back-tp #t)(> frame-count 80)(= (pause-allowed?) #t)) ;resets everything back to original state 10 frames after the game-load, to avoid crashes.
     (set! stored-cp? #f)
     (set! going-back-tp #f)
     (set! start-frame-count #f)
+    (set! pause-menu-blocked? #f)
     (set! frame-count 0)
     (when (= hell-mode-option #t)
       (set! (-> *game-info* fuel) 10.0)
@@ -1366,8 +1495,11 @@ All of the variables set are for time-based events based off of frames |#
     (print "It worked!! POGGERS!!! (I logged 42 hours on this problem :D)")
   )
 
+
+;(set! (-> *setting-control* user-current allow-pause) #f)
+
 (when (= pause-menu-blocked? #t)
-  (set! (-> *setting-control* user-current allow-pause) #f)
+  (set-master-mode 'game)
 )
 
 
@@ -1549,12 +1681,13 @@ All of the variables set are for time-based events based off of frames |#
 (define help 
 
 "
+----------------------------HELP!----------------------------
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 What are the commands to set your Green Eco or Gun Mod?
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ALL WEAPON MODS ARE TOGGLED OFF BY DEFAULT, ONCE YOU SET IT ON AND SAVE, THERES NO GOING BACK ON YOUR SAVE.
-(unless you set weapon-mod-toggle to false and (-> *game-info* fuel) to 0, then save)
+(unless you set weapon-mod-toggle to false and (-> *game-info* fuel) to 0, then save/load or new game.)
 
 
 you can set it via (set! weapon-mod-toggle #t) 
@@ -1565,13 +1698,14 @@ If you want to re-roll for another modifier you can do so with
 You must have 10 metalhead gems to reroll.
 
 
-------------------------------------------------------------------------------------------------------------------------------------------------------------------
-WEAPON MODS: Each weapon mod will come with the option boolean, and an integer (which is referred in example as V) storing from 1-4 defining the selected gun. 1=Yellow, 2=Red, 3=Blue, 4=Dark
-All of these changes are done in target-gun.gc
+---------------------------------------------------------------------------------------------------------------------
+WEAPON MODS: Each weapon mod will come with the option boolean, and an integer (which is referred in example as V) 
+storing from 1-4 defining the selected gun. 1=Yellow, 2=Red, 3=Blue, 4=Dark
+
 Example:
 (set! rapid-fire-option #t)
 (set! rapid-fire-int V)
-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 
 
 rapid-fire-option                 Fire rate increased dramatically
@@ -1589,29 +1723,29 @@ big-shot-int
 mag-bag-option                    x3 the ammo on the weapon its attached to (not implemented yet)
 mag-bad-int
 
-pm-extra-shot-option              Every shot has a chance to fire a peacemaker shot :) (this can also be pulled as a legendary)
+pm-extra-shot-option              Every shot has a chance to fire a peacemaker shot 
 pm-extra-shot-int
 
 predator-shot-option              Every shot has a good chance to spawn a predator shot with it
-predator-shot-int                 (this is deprecated, pred shot is in random-shot only, still works for the most part)
+predator-shot-int                 (this is deprecated, pred shot is in random-shot only, still works)
 
-guard-shot-option                 Every shot has a good chance to spawn a guard shot with it
+guard-shot-option                 Your gun can now fire guard projectiles!
 guard-shot-int
 
 leg-random-shot                   Your gun can fire every shot known to man.
 leg-random-int
 
-Every guard that spawns will have a chance to drop a legendary weapon mod. All others are done via missions or burning-bush.
-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Every guard that spawns has a chance to drop a legendary weapon mod. All others are done via missions or burning-bush
+---------------------------------------------------------------------------------------------------------------------
 GREEN ECO MODS(modifiers): Each mod works differently, but I keep all of it on a toggle boolean.
 Example: (set! peacemaker-ability #t)
-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 
-peacemaker-ability                at any given points in the game, jak has a chance to fire 100 peacemaker shots out of his gun
+peacemaker-ability                on any frame, jak has a chance to fire 100 peacemaker shots out of his gun
                                   but you must one-hit every boss fight in the game.
 
 tp-fb                             upon death, theres a good chance jak will respawn at the final boss fight,
-                                  BUT the final boss is extremely unfair, no saving is allowed, and no checkpoints are stored.
+                                  BUT the final boss is extremely unfair, no saving is allowed, no stored checkpoints
 
 hover-damage                      Your hoverboard goes much faster, tricks virtually mean nothing for speed
                                   but mostly all enemies (except guards in traffic) have X5 HP. (oof)
@@ -1619,15 +1753,15 @@ hover-damage                      Your hoverboard goes much faster, tricks virtu
 dark-traffic                      Every dark eco you collect has a chance to fill your darkjak meter 100%
                                   but any time jak angers the guards, its max alert level
 
-trip-metalheads                   jumping, punching, spinning, rolling, or shooting can make jak trip at a low chance
-                                  but every time this happens, you get 10 free metal-head gems (cooldown 2000 frames)
+trip-metalheads                   jumping, punching, spinning, rolling, or shooting can make jak trip at a low chance                            
+                                  but when you trip, jak gets 10 gems. All metalheads drop infinite gems!
 
-target-explode                    jak has a bomb strapped to his chest and if he takes damage he has a chance of exploding
+target-explode                    jak has a bomb strapped to his chest, he has a chance of exploding when bonked/hit
                                   but dark jak lasts a lot longer
 
 hell-mode-option                  enabled automatically when in hero-mode. This enables all modifiers }:) good luck
 
-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 "
 )
 
@@ -1642,6 +1776,33 @@ hell-mode-option                  enabled automatically when in hero-mode. This 
     ;;;;;;;;;;;;;;;;;;;;;;;;;;
 #|
      these are no longer recommended/supported however we include them anyways to not break anyones mods.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+(defmacro spawn-gem-near-target! (&key (count 5))
+  `(dotimes (i ,count)
+     (birth-pickup-at-point
+       (vector+! (new 'stack 'vector) (target-pos 0) (new 'static 'vector :y (meters 2.0)))
+       (pickup-type gem)
+       1.0
+       #t
+       *entity-pool*
+       (the fact-info #f))))
+
+
     |#
 
 
