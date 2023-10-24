@@ -176,9 +176,13 @@ CURRENT BUGS:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;|#
 
 ;Modifier Definitions (gun-mod definitions in target-gun.gc)
+(define tp-fb-win #f)
 (define mod-reroll #f) ;toggle on to reroll your current mod for 10 metalhead gems
 (define mod-rand 0)
 (define mod-pick #f)
+
+(define auto-save-delayed? #f)
+(define auto-save-frame 0)
 
 (define hell-mode-option #f) ;toggle on to set hell-mode on (just turn on hero-mode)
 
@@ -213,6 +217,7 @@ CURRENT BUGS:
 (define going-back-tp #f)
 (define stored-cp? #f)
 (define pause-menu-blocked? #f)
+(define-extern tp-fb-win symbol)
 
 (define hover-damage #f) ;toggle on to enable hoverboard mechanics, but enemies have X5 HP
 
@@ -245,6 +250,8 @@ CURRENT BUGS:
 (define mission-grab-2 #f) ;sets mission get for weapon mods
 (define mission-grab-3 #f) ;sets mission get for weapon mods
 (define mission-grab-4 #f) ;sets mission get for weapon mods
+
+(define mushroom-movies #f)
 
 
 
@@ -443,24 +450,24 @@ CURRENT BUGS:
   (when (and (not (logtest? (-> *game-info* secrets) (game-secrets hero-mode)))(>= (-> *game-info* gem) 10.0))
     (set! (-> *game-info* gem) (- (-> *game-info* gem) 10.0))
     (set! mod-pick #t)
-    (print "SUCCESSFULLY REROLLED :)")
+    (print "[MOD] SUCCESSFULLY REROLLED :)
+")
     (set! mod-reroll #f)
   )
   (when (< (-> *game-info* gem) 10.0)
-    (print "NOT ENOUGH GEMS, REQUIRE 10 TO REROLL")
+    (print "[MOD] NOT ENOUGH GEMS, REQUIRE 10 TO REROLL
+")
     (set! mod-reroll #f)
   )
   (when (logtest? (-> *game-info* secrets) (game-secrets hero-mode))
-    (print "YOU'RE NOT ALLOWED TO RE-ROLL WHILE IN HELL-MODE }:]")
+    (print "[MOD] YOU'RE NOT ALLOWED TO RE-ROLL WHILE IN HELL-MODE }:]
+")
     (set! mod-reroll #f)
-  )
-  (when (and (not (logtest? (-> *game-info* secrets) (game-secrets hero-mode))) (not (< (-> *game-info* gem) 10.0)) (and (not (logtest? (-> *game-info* secrets) (game-secrets hero-mode)))(>= (-> *game-info* gem) 10.0)))
-  (print "Error, cannot reroll your current modifiers. Type (print help) to set them yourself, or start a new game.")
   )
 )
 
 
-(when (and (= (-> *game-info* fuel) 0.0)(= weapon-mod-toggle #t)) ;checks for if you have weapon mod toggle on, then gives you a modifier
+(when (and (= (-> *game-info* fuel) 0.0)(= (pause-allowed?) #t)(= weapon-mod-toggle #t)) ;checks for if you have weapon mod toggle on, then gives you a modifier
   (set! mod-pick #t)
 )
 
@@ -469,32 +476,38 @@ CURRENT BUGS:
   (when (= mod-rand 1)
     (set! (-> *game-info* fuel) 1.0)
     (set! mod-pick #f)
-    (print "rolled for Peacemaker Ability!")
+    (print "[MOD] rolled for Peacemaker Ability!
+")
   )
-  (when (= mod-rand 2)
+  (when (and (!= (-> *game-info* buzzer-total) 2.0)(= mod-rand 2))
     (set! (-> *game-info* fuel) 2.0)
     (set! mod-pick #f)
-    (print "rolled for Teleport to Final Boss!")
+    (print "[MOD] rolled for Teleport to Final Boss!
+")
   )
   (when (= mod-rand 3)
     (set! (-> *game-info* fuel) 3.0)
     (set! mod-pick #f)
-    (print "rolled for Hoverboard/Enemy Health!")
+    (print "[MOD] rolled for Hoverboard/Enemy Health!
+")
   )
   (when (= mod-rand 4)
     (set! (-> *game-info* fuel) 4.0)
     (set! mod-pick #f)
-    (print "rolled for Dark Eco / Threatening Traffic")
+    (print "[MOD] rolled for Dark Eco / Threatening Traffic
+")
   )
   (when (= mod-rand 5)
     (set! (-> *game-info* fuel) 5.0)
     (set! mod-pick #f)
-    (print "rolled for Trip Jak / Metalheads!")
+    (print "[MOD] rolled for Trip Jak / Metalheads!
+")
   )
   (when (= mod-rand 6)
     (set! (-> *game-info* fuel) 6.0)
     (set! mod-pick #f)
-    (print "rolled for Target Explode / DarkJakLonger!")
+    (print "[MOD] rolled for Target Explode / DarkJakLonger!
+")
   )
 )
 
@@ -506,7 +519,7 @@ CURRENT BUGS:
 
 (when (= weapon-mod-toggle #t)
   ;Legendary Weapon Mod Saves
-  (when (and (= (-> *game-info* buzzer-total) 0.0)(= pm-extra-shot-option #f)) ;if none
+  (when (and (= (-> *game-info* buzzer-total) 0.0)(or (= leg-random-shot #t)(= pm-extra-shot-option #f))) ;if none
     (set! pm-extra-shot-option #f)
     (set! leg-random-shot #f)
     (set! leg-got? #f)
@@ -521,7 +534,11 @@ CURRENT BUGS:
     (set! leg-random-shot #t)
     (set! leg-random-int mod-default-gun)
     (set! leg-got? #t)
+    (set! tp-fb-win #t)
   )
+
+
+
   ;Modifier Saves
   (when (and (= (-> *game-info* fuel) 0.0)(= all-modifiers-off? #f)) ;if none
     (set! hell-mode-option #f)
@@ -632,28 +649,32 @@ CURRENT BUGS:
     (set! mission-grab-1 #t)
     (set! rapid-fire-option #t)
     (set! rapid-fire-int mod-default-gun)
-    (print "Rapid Fire Acquired, please choose gun via (set! rapid-fire-int (integer 1 through 4))")
+    (print "[GUN-MOD] Rapid Fire Acquired! Weapon Mod set to mod-default-gun
+")
   )
 
   (when (and (task-node-closed? (game-task-node sewer-enemy-resolution))(= mission-grab-2 #f)) ;after yellow gun, get double tap
     (set! mission-grab-2 #t)
     (set! double-tap-option #t)
     (set! double-tap-int mod-default-gun)
-    (print "Chanced Double Tap Acquired, please choose gun via (set! double-tap-int (integer 1 through 4))")
+    (print "[GUN-MOD] Chanced Double Tap Acquired! Weapon Mod set to mod-default-gun
+")
   )
 
   (when (and (task-node-closed? (game-task-node ruins-enemy-introduction))(= mission-grab-3 #f)) ;after blue gun, get chanced guard shot
     (set! mission-grab-3 #t)
     (set! guard-shot-int mod-default-gun)
     (set! guard-shot-option #t)
-    (print "Chanced Guard Shot Acquired, please choose gun via (set! guard-shot-int (integer 1 through 4))")
+    (print "[GUN-MOD] Chanced Guard Shot Acquired! Weapon Mod set to mod-default-gun
+")
   )
 
   (when (and (task-node-closed? (game-task-node sewer-escort-get-gun))(= mission-grab-4 #f)) ;after dark gun, get chanced predator shot
     (set! mission-grab-4 #t)
     ;(set! predator-shot-int mod-default-gun)
     (set! predator-shot-option #t)
-    (print "Chanced Predator Shot Acquired, please choose gun via (set! predator-shot-int (integer 1 through 4))")
+    (print "[GUN-MOD] Chanced Predator Shot Acquired! Weapon Mod set to mod-default-gun
+")
   )
   ;looks for if their missions become un-completed after setting them, then takes away mission gun mods respectively
   (when (and (not (task-node-closed? (game-task-node city-krew-delivery-resolution)))(= mission-grab-1 #t))
@@ -680,6 +701,9 @@ CURRENT BUGS:
 )
 
 
+
+
+
 ;Roll for a random legenedary gun mod
 (when (= wm-roll-rand #t) ;this runs the roll for a random weapon mod to be unlocked. Super inefficient, i love it :)
 
@@ -687,13 +711,15 @@ CURRENT BUGS:
     (set! wm-roll-rand #f)
     (set! wm-roll-numb 0)
     (set! (-> *game-info* buzzer-total) 1.0)
-    (print "Infintie Range Acquired, please choose gun via (set! infinite-range-int (integer 1 through 4))")
+    (print "[GUN-MOD] | LEGENDARY |  Chanced Peacemaker Shot Acquired! Weapon Mod set to mod-default-gun
+")
   )
   (when (and (rand-vu-percent? 0.2)(= wm-roll-numb 2)) ;checks if rolled for integer 2
     (set! wm-roll-rand #f)
     (set! wm-roll-numb 0)
-    (set! (-> *game-info* buzzer-total) 2.0)
-    (print "Chanced Peacemaker Shot Acquired, please choose gun via (set! pm-extra-shot-int (integer 1 through 4))")
+    (set! (-> *game-info* buzzer-total) 1.0)
+    (print "[GUN-MOD] | LEGENDARY |  Chanced Peacemaker Shot Acquired! Weapon Mod set to mod-default-gun
+")
   )
   (when (= wm-roll-rand #t) ;rolls the integer
     (+! wm-roll-numb 1)
@@ -703,6 +729,7 @@ CURRENT BUGS:
   )
 
 )
+
 
 
 (when (and (logtest? (-> *game-info* secrets) (game-secrets hero-mode))(!= (-> *game-info* fuel) 10.0)) ;if you're in hero-mode, sets to have hell-mode enabled in your save.
@@ -1181,7 +1208,7 @@ CURRENT BUGS:
         )
         )
   )
-  (when (and (= double-tap-int 3)(= guard-shot-int 3))
+  (when (and (= double-tap-int 3) (= guard-shot-int 3))
     (let ((s4-1 (new 'stack-no-clear 'projectile-init-by-other-params)))
             (set! (-> s4-1 ent) (-> *target* entity))
             (set! (-> s4-1 charge) 1.0)
@@ -1448,12 +1475,13 @@ All of the variables set are for time-based events based off of frames |#
     (set! guard-shot-option #f)
     (set! predator-shot-option #f)
     (initialize! *game-info* 'game (the-as game-save #f) (the-as string #f))
-    (print "started teleporting")
+    (print "[MOD] started teleporting
+")
   )
   (when (and (and (= frame-count 30)(= new-game-s? #t)(= stored-cp? #t))) ;starts after a little bit to avoid crashes, teleports jak to final boss spawnpoint and sets the game task
     (start 'play (get-continue-by-name *game-info* "nestb-boss-pit"))
     (play-task (game-task nest-boss) 'debug #f)
-    (set! pause-menu-blocked? #t)
+    ;(set! pause-menu-blocked? #t)
     (when (= hell-mode-option #t)
       (set! (-> *game-info* fuel) 10.0)
     )
@@ -1464,18 +1492,22 @@ All of the variables set are for time-based events based off of frames |#
     (set! frame-count 0)
     (set! going-back-tp #t)
     (set! (-> *setting-control* user-current allow-pause) #f)
-    (print "teleport success")
+    (print "[MOD] teleport success
+")
   )
-  (when (and (and (and (= going-back-tp #t)(= start-frame-count #f)(= tp-fb #t)(< (-> *target* fact health) 1)))) ;starts when jak dies again, while in the final boss stage
+  
+  (when (and (= going-back-tp #t)(= tp-fb-win #f)(= start-frame-count #f)(= tp-fb #t)(< (-> *target* fact health) 1)) ;starts when jak dies again, while in the final boss stage
     (set! start-frame-count #t)
     (set! new-game-s? #f)
-    (print "started frame-count for game-save load")
+    (print "[MOD] started frame-count for game-save load
+")
   )
-  (when (and (= frame-count 60)(= going-back-tp #t)) ;loads the save you had after 120 frames of DEATH
+  (when (and (= frame-count 60)(= tp-fb-win #f)(= going-back-tp #t)) ;loads the save you had after 60 frames of DEATH
     (auto-save-command 'restore 0 0 *default-pool* #f)
-    (print "crash?")
+    (print "[MOD] crash?
+")
   )
-  (when (and (= going-back-tp #t)(> frame-count 80)(= (pause-allowed?) #t)) ;resets everything back to original state 10 frames after the game-load, to avoid crashes.
+  (when (and (= going-back-tp #t)(= tp-fb-win #f)(> frame-count 80)(= (pause-allowed?) #t)) ;resets everything back to original state AFTER the game-load, to avoid crashes.
     (set! stored-cp? #f)
     (set! going-back-tp #f)
     (set! start-frame-count #f)
@@ -1492,14 +1524,57 @@ All of the variables set are for time-based events based off of frames |#
     (set! mission-grab-2 #f)
     (set! mission-grab-3 #f)
     (set! mission-grab-4 #f)
-    (print "It worked!! POGGERS!!! (I logged 42 hours on this problem :D)")
+    (print "[MOD] It worked!! POGGERS!!! (I logged 42 hours on this problem :D)
+")
   )
 
+  (when (and (= stored-cp? #t)(= tp-fb-win #t))
+    (set! start-frame-count #t)
+    (set! new-game-s? #f)
+    (when (and (= stored-cp? #t)(= frame-count 1))
+      (auto-save-command 'restore 0 0 *default-pool* #f)
+    )
+    (when (and (= stored-cp? #t)(= frame-count 120))
+      (set! (-> *game-info* buzzer-total) 2.0)
+      (print "[MOD] | LEGENDARY | You beat tp-fb and recieved Weapon Mod random-shot! Congratulations!!
+")
+      (set! stored-cp? #f)
+      (set! pause-menu-blocked? #f)
+      (set! start-frame-count #f)
+      (set! frame-count 0)
+      (set! going-back-tp #f)
+      (set! weapon-mod-toggle #t)
+      (set! mission-grab-1 #f)
+      (set! mission-grab-2 #f)
+      (set! mission-grab-3 #f)
+      (set! mission-grab-4 #f)
+      (set! auto-save-delayed? #t)
+      (when (= hell-mode-option #t)
+        (set! (-> *game-info* fuel) 10.0)
+        (+! (-> *game-info* gem) 30.0)
+      )
+      (when (= hell-mode-option #f)
+        (print "[MOD] Rerolling modifier... }:)
+")
+        (+! (-> *game-info* gem) 30.0)
+        (set! mod-pick #t)
+      )
+    )
+  )
 
 ;(set! (-> *setting-control* user-current allow-pause) #f)
 
 (when (= pause-menu-blocked? #t)
   (set-master-mode 'game)
+)
+
+(when (= auto-save-delayed? #t)
+  (+! auto-save-frame 1)
+  (when (= auto-save-frame 60)
+    (auto-save-user)
+    (set! auto-save-frame 0)
+    (set! auto-save-delayed? #f)
+  )
 )
 
 
@@ -1589,9 +1664,11 @@ All of the variables set are for time-based events based off of frames |#
 )
 
 
-
-
-
+#|
+(when (and (= mushroom-movies #t) ())
+  (cpad-pressed *target* l2)
+)
+|#
 
 
     
@@ -1745,7 +1822,7 @@ peacemaker-ability                on any frame, jak has a chance to fire 100 pea
                                   but you must one-hit every boss fight in the game.
 
 tp-fb                             upon death, theres a good chance jak will respawn at the final boss fight,
-                                  BUT the final boss is extremely unfair, no saving is allowed, no stored checkpoints
+                                  BUT theoss is extremely unfair. Upon boss kill, get legendary gun mod.
 
 hover-damage                      Your hoverboard goes much faster, tricks virtually mean nothing for speed
                                   but mostly all enemies (except guards in traffic) have X5 HP. (oof)

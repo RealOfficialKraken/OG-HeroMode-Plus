@@ -7,6 +7,8 @@
 
 ;; DECOMP BEGINS
 
+(define tp-fb-win #f)
+
 (define *metalkor-spinner-setup*
   (new 'static 'boxed-array :type metalkor-spinner-info
     (new 'static 'metalkor-spinner-info :joint-index 67 :launch-angle 7281.778)
@@ -1665,6 +1667,9 @@
         )
     (set! (-> self explode-sound)
           (add-process *gui-control* self (gui-channel jak) (gui-action queue) "nbexplo" -99.0 0)
+    )
+    (when (and (= stored-cp? #t)(= tp-fb-win #f))
+          (set! tp-fb-win #t)
           )
     (none)
     )
