@@ -167,14 +167,14 @@ FINISHED :D
  (set! target-explode #f)
  (set! (-> (level-get-target-inside *level*) mood-func)update-mood-nest); its not this
  (when (= ohshiti 1)
-  (play-sound-file "data/goal_src/jak2/pc/snd/deathhascome.mp3" 200) ;or this
-  (send-event (ppointer->process *time-of-day*) 'change 'ratio 140.0) ;or any of these 
-  (set! (-> *time-of-day-context* overide-enable) #f) ;<-
-  (set! (-> *mood-control* overide-weather-flag) #t) ;<-
-  (set! (-> *mood-control* overide fog) 1.0) ;<-
-  (set! (-> *mood-control* overide cloud) 1.0) ;<-        D:<
+  (play-sound-file "data/goal_src/jak2/pc/snd/deathhascome.mp3" 200) 
+  (send-event (ppointer->process *time-of-day*) 'change 'ratio 140.0) 
+  (set! (-> *time-of-day-context* overide-enable) #f)
+  (set! (-> *mood-control* overide-weather-flag) #t)
+  (set! (-> *mood-control* overide fog) 1.0)
+  (set! (-> *mood-control* overide cloud) 1.0) 
    )
- (when (= ohshiti 300) ;this happens 3 frames later, so IT HAS TO BE HERE ^^^^^^^
+ (when (= ohshiti 300) 
     ;set lwideb on
     (set! granger-level 1)
     (set! granger-activated? #t)
