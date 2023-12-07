@@ -165,7 +165,7 @@ FINISHED :D
  (+! ohshiti 1)
  (set! tp-fb #f)
  (set! target-explode #f)
- (set! (-> (level-get-target-inside *level*) mood-func)update-mood-nest)
+ ;(set! (-> (level-get-target-inside *level*) mood-func)update-mood-nest)
  (when (= ohshiti 1)
   (play-sound-file "data/goal_src/jak2/pc/snd/deathhascome.mp3" 200)
   (send-event (ppointer->process *time-of-day*) 'change 'ratio 20.0)
