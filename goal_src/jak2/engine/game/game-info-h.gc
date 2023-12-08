@@ -349,6 +349,7 @@ CURRENT BUGS:
 (define granger4 #f)
 (define granger4i 0)
 (define in-granger? #f)
+(define ohshitactualfirst #f)
 (define ohshitfirsttime #f)
 (define firsttime 0)
 (define ohshit #f)
