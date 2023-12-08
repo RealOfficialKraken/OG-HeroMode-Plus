@@ -85,7 +85,7 @@
   (logior! (-> this mask) (process-mask collectable))
   (logior! (-> this enemy-flags) (enemy-flag look-at-move-dest))
   (set! (-> this hit-points) (-> this enemy-info default-hit-points))
-  (when (> granger-level 1)
+  (when (>= granger-level 1)
     (set! (-> this hit-points) granger-resist)
   )
   (set! (-> this fated-time) 0)

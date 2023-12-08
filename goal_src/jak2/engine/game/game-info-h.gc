@@ -637,6 +637,8 @@ CURRENT BUGS:
 (define granger-level 0)
 (define granger-activated? #f)
 (define granger-teleport #f)
+(define delayed-gt #f)
+(define gt-count 0)
 
 
 
