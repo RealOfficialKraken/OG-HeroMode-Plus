@@ -1150,7 +1150,7 @@
   (set! (-> this dest-fade) 0.0)
   (set! (-> this curr-node) -1)
   (set! (-> this next-change) 0)
-  (set! (-> this miss-amount) 16384.0)
+  (set! (-> this miss-amount) 16.0)
   (set-vector! (-> this draw color-mult) 1.0 1.0 1.0 1.0)
   0
   (none)

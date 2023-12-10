@@ -465,7 +465,7 @@
   "mod-settings.o" ;; added
   "mod-common-functions.o" ;; added
   "mod-custom-code.o" ;; added
-  "crimson-guard-level.o";;;;;;;;;;;;;;;;; added for guard-grenade
+  "crimson-guard-level.o";;;;;;;;;;;;;;;;; added for guard-grenade and all the way down.
   "guard-conversation.o"
   "hover-nav-control-h.o" ;added
   "gstate.o"
