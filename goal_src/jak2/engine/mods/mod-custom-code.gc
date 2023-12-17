@@ -6449,8 +6449,8 @@ Eco War is similar to BlackJack, but with a twist!
       (set! di-s4 "")
     )
     (when (= di-i 2)
-      (set! di-s1 "in fact, NOBODY'S done this before! I would consider you to be the first.")
-      (set! di-s2 "All of the powerful secrets are now accessible in the secrets menu.")
+      (set! di-s1 "All of the powerful secrets are now accessible in the secrets menu.")
+      (set! di-s2 "")
       (set! di-s3 "")
       (set! di-s4 "")
     )
@@ -6645,7 +6645,7 @@ Eco War is similar to BlackJack, but with a twist!
     (+! di-i 1)
   )
 
-  (when (and (rand-vu-percent? 0.008) ;normal is 0.00008% 
+  (when (and (rand-vu-percent? 0.00008) ;normal is 0.00008% 
   (= ohshitactualfirst #f) 
   (= ohshit #f)
   (= ohshitfirsttime #f)
