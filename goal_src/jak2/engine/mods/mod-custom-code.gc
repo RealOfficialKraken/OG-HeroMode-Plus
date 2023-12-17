@@ -5895,8 +5895,8 @@ Eco War is similar to BlackJack, but with a twist!
   )
 )
 
-
-  (when (and (not (cpad-hold? 0 x))(= di-box #t))
+  ;GRANGER REG
+  (when (and (= pregranger1 #f) (not(cpad-hold? 0 x))(= di-box #t))
     (clear matt-str)
       (clear *pc-encoded-matt-str*)
     (format matt-str "
@@ -5916,7 +5916,7 @@ Eco War is similar to BlackJack, but with a twist!
           (set! (-> font-ctx scale) 0.325)
           (draw-string-adv *pc-encoded-matt-str* buf font-ctx)))
   )
-  (when (and (cpad-hold? 0 x)(= di-box #t))
+  (when (and (= pregranger1 #f)(cpad-hold? 0 x)(= di-box #t))
     (clear matt-str)
       (clear *pc-encoded-matt-str*)
     (format matt-str "
@@ -5937,6 +5937,56 @@ Eco War is similar to BlackJack, but with a twist!
           (draw-string-adv *pc-encoded-matt-str* buf font-ctx)))
   )
 
+;GRANGER SPECIAL
+
+(when (and (= pregranger1 #t)(not (cpad-hold? 0 x))(= di-box #t))
+    (clear matt-str)
+      (clear *pc-encoded-matt-str*)
+    (format matt-str "
+  <COLOR_RED>~s~%~s~%~s~%~s~%~%<COLOR_GREEN>Ok
+    "
+  di-s1
+  di-s2
+  di-s3
+  di-s4
+      )
+      (pc-encode-utf8-string matt-str *pc-encoded-matt-str*)
+      (with-dma-buffer-add-bucket ((buf (-> (current-frame) global-buf)) (bucket-id debug-no-zbuf1))
+        
+        
+        (dma-buffer-add-gs-set-flusha buf (alpha-1 (new 'static 'gs-alpha :b #x1 :d #x1)) (tex1-1 (new 'static 'gs-tex1 :mmag #x1 :mmin #x1)))
+        (let ((font-ctx (new 'stack 'font-context *font-default-matrix* 260 130 0.0 (font-color default) (font-flags middle shadow kerning large))))
+          (set! (-> font-ctx scale) 0.325)
+          (draw-string-adv *pc-encoded-matt-str* buf font-ctx)))
+  )
+  (when (and (= pregranger1 #t)(cpad-hold? 0 x)(= di-box #t))
+    (clear matt-str)
+      (clear *pc-encoded-matt-str*)
+    (format matt-str "
+  <COLOR_RED>~s~%~s~%~s~%~s~%~%<COLOR_YELLOW>Ok
+    "
+  di-s1
+  di-s2
+  di-s3
+  di-s4
+      )
+      (pc-encode-utf8-string matt-str *pc-encoded-matt-str*)
+      (with-dma-buffer-add-bucket ((buf (-> (current-frame) global-buf)) (bucket-id debug-no-zbuf1))
+        
+        
+        (dma-buffer-add-gs-set-flusha buf (alpha-1 (new 'static 'gs-alpha :b #x1 :d #x1)) (tex1-1 (new 'static 'gs-tex1 :mmag #x1 :mmin #x1)))
+        (let ((font-ctx (new 'stack 'font-context *font-default-matrix* 260 130 0.0 (font-color default) (font-flags middle shadow kerning large))))
+          (set! (-> font-ctx scale) 0.325)
+          (draw-string-adv *pc-encoded-matt-str* buf font-ctx)))
+  )
+
+  (when (and (= camera-locked #t)(= in-granger? #t)(cpad-pressed? 0 x))
+    (+! di-i 1)
+  )
+  (when (and (= camera-locked #t)(= pregranger1 #t)(cpad-pressed? 0 x))
+    (+! di-i 1)
+  )
+
 (when (and (= (-> *game-info* task-deaths) 0) (= granger4 #t))
       (set! (-> *game-info* task-deaths) 4)
       (set! granger1 #t)
@@ -5944,6 +5994,80 @@ Eco War is similar to BlackJack, but with a twist!
       (set! granger3 #t)
       (set! granger4 #t)
     )
+
+(when (and (= camera-locked #t)(= hint-done? #f)(= (-> *game-info* task-deaths) 0)(= (-> (level-get-target-inside *level*) name) 'consiteb))
+    (set! pregranger1 #t)
+    (+! preranger1i 1)
+    (when (= preranger1i 120)
+      (set! di-box #t)
+      (set! di-i 1)
+    )
+    (when (= in-menu #t)
+      (set! in-menu #f)
+      (set! menu-pressed? #f)
+      (set! wait-start #t)
+      (set! string-printed? #f)
+    )
+
+    (when (= di-i 1)
+      (set! di-s1 "Alright listen, there's no time to explain everything.")
+      (set! di-s2 "")
+      (set! di-s3 "")
+      (set! di-s4 "")
+    )
+    (when (= di-i 2)
+      (set! di-s1 "...")
+      (set! di-s2 "")
+      (set! di-s3 "")
+      (set! di-s4 "")
+    )
+    (when (= di-i 3)
+      (set! di-s1 "There's something trapped inside this game.")
+      (set! di-s2 "Something big.")
+      (set! di-s3 "")
+      (set! di-s4 "")
+    )
+    (when (= di-i 4)
+      (set! di-s1 "Acquire as many skull gems as you possibly can.")
+      (set! di-s2 "I do not know what it is capable of.")
+      (set! di-s3 "")
+      (set! di-s4 "")
+    )
+    (when (= di-i 5)
+      (set! di-s1 "...but it seems like it knows about the fact that")
+      (set! di-s2 "it's in a video game. And it's terrifying.")
+      (set! di-s3 "")
+      (set! di-s4 "")
+    )
+    (when (= di-i 6)
+      (set! di-s1 "Never stop collecting.")
+      (set! di-s2 "")
+      (set! di-s3 "")
+      (set! di-s4 "")
+    )
+    (when (= di-i 7)
+      (set! hint-done? #t)
+      (set! preranger1i 0)
+      (set! di-box #f)
+      (set! di-i 0)
+      (set! di-s1 "")
+      (set! di-s2 "")
+      (set! di-s3 "")
+      (set! di-s4 "")
+      (set! camera-locked #f)
+      (remove-setting-by-arg0 *setting-control* 'mode-name)
+      (set! in-menu #f)
+      (set! menu-pressed? #f)
+      (set! wait-start #t)
+      (set! pause-menu-blocked? #f)
+      (set! string-printed? #f)
+    )
+    
+
+)
+
+
+
 
 (when (and (task-node-closed? (game-task-node mountain-lens-introduction))(= weapon-mod-toggle #t)
   (and 
@@ -6641,9 +6765,6 @@ Eco War is similar to BlackJack, but with a twist!
     )
   )
 
-  (when (and (= camera-locked #t)(= in-granger? #t)(cpad-pressed? 0 x))
-    (+! di-i 1)
-  )
 
   (when (and (rand-vu-percent? 0.00008) ;normal is 0.00008% 
   (= ohshitactualfirst #f) 

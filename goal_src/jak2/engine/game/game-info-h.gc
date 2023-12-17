@@ -340,6 +340,9 @@ CURRENT BUGS:
 (define settingunlocked2 #f)
 (define settingunlocked3 #f)
 
+(define hint-done? #f)
+(define pregranger1 #f)
+(define preranger1i 0)
 (define granger1 #f)
 (define granger1i 0)
 (define granger2 #f)
