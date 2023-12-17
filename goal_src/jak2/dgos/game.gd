@@ -461,6 +461,17 @@
   "battle.o"
   "elec-gate.o"
   "cty-guard-turret-button.o"
+  "nav-graph-h.o"
+  "traffic-engine-h.o"
+  "vehicle-h.o"
+  "citizen-h.o"
+  "citizen.o"
+  "civilian.o"
+  "guard.o"
+  "citizen-norm.o"
+  "citizen-fat.o"
+  "citizen-chick.o"
+  "citizen-enemy.o"
   "entity-debug.o" ;; added
   "mod-settings.o" ;; added
   "mod-common-functions.o" ;; added
