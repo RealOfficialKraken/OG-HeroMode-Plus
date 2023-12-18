@@ -640,9 +640,14 @@ CURRENT BUGS:
 
 (define granger-level 0)
 (define granger-activated? #f)
+(define granger2-activated? #f)
 (define granger-teleport #f)
 (define delayed-gt #f)
 (define gt-count 0)
+(define granger-unit 0)
+(define-extern current-situation string)
+(define-extern current-situations string)
+(define granger-win #f)
 
 
 
