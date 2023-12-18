@@ -1703,7 +1703,7 @@ FINISHED :D
 )
 
 
-(when (and (= target-explode #t)(= gungame-ammorefill #f)(= (-> (level-get-target-inside *level*) name) 'gungame) (not (= (-> (level-get-target-inside *level*) name) 'ctywide)))
+(when (and (or (= target-explode #t)(= ohshitfirsttime #t))(= gungame-ammorefill #f)(= (-> (level-get-target-inside *level*) name) 'gungame) (not (= (-> (level-get-target-inside *level*) name) 'ctywide)))
   (send-event *target* 'get-pickup (pickup-type ammo-yellow) 1000.0)
   (send-event *target* 'get-pickup (pickup-type ammo-red) 1000.0)
   (send-event *target* 'get-pickup (pickup-type ammo-blue) 1000.0)
