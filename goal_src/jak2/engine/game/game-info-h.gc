@@ -313,6 +313,7 @@ CURRENT BUGS:
 (define rand-setting-c 0)
 (define targetec-start #f)
 (define targetec-count 0)
+(define spawntheturrets #f)
 
 (define gungame-ammorefill #f)
 
