@@ -252,7 +252,7 @@ FINISHED :D
  (set! target-explode #f)
 )
 (when (and (task-node-closed? (game-task-node mountain-lens-introduction))(= weapon-mod-toggle #t))
-(when (= ohshitfirsttime #t)
+(when (and (= ohshitfirsttime #t)(= (paused?) #f))
  (when (<= ohshiti 20200)
   (+! ohshiti 1)
  )
