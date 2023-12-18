@@ -166,7 +166,8 @@ FINISHED :D
     (let ((n 0)
           (p (set! granger-teleport #f))
           (pp (set! granger-level 0))
-          (ppp (set! granger-activated? #t)))
+          (ppp (set! granger-activated? #t))
+          (peepeepeepee (set! spawntheturrets #f)))
       (set! n (rand-vu-int-range 1 8))
       (when (rand-vu-percent? 0.02)
         (set! n 0)
@@ -201,6 +202,7 @@ FINISHED :D
       p
       pp
       ppp
+      peepeepeepee
     )
   )
 
