@@ -359,6 +359,12 @@ CURRENT BUGS:
 (define ohshit #f)
 (define ohshiti 0)
 (define tod-int 0.0)
+(define sp-win #f)
+(define sp-lose #f)
+(define sp-start #f)
+(define sp-again #f)
+(define sp-game #f)
+(define sp-int 0)
 
 (define di-box #f)
 (define-extern di-s1 string)
