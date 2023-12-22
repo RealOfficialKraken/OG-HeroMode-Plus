@@ -366,6 +366,15 @@ CURRENT BUGS:
 (define sp-game #f)
 (define sp-int 0)
 
+(define granger-mode #f)
+(define granger-newgame #f)
+(define grangerd #f)
+(define-extern grangerd-string string)
+(define granger-ngi 0)
+(define granger-newgamei 0)
+(define granger-weapons #f)
+(define granger-ohshitalways #f)
+
 (define di-box #f)
 (define-extern di-s1 string)
 (define-extern di-s2 string)
@@ -588,6 +597,12 @@ CURRENT BUGS:
 (define disable-mm 0)
 (define-extern disable-mms string)
 (define done-it #f)
+
+(define enter-grangeri 0)
+(define exit-grangeri 0)
+(define set-functions #f)
+(define enter-granger #f)
+(define exit-granger #f)
 
 (define pm-shot-trigger #f) ;these had to be placed here due to load order
 

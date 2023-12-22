@@ -115,9 +115,232 @@ FINISHED :D
 
 
 
+(when (and (= in-menu #t)(= (-> *game-info* task-deaths) 4))
+  (clear matt-str)
+      (clear *pc-encoded-matt-str*)
+    (format matt-str "<COLOR_WHITE>L1:<COLOR_PINK>Start Death Mode (New Game) ~S"
+  grangerd-string
+      )
+      (pc-encode-utf8-string matt-str *pc-encoded-matt-str*)
+      (with-dma-buffer-add-bucket ((buf (-> (current-frame) global-buf)) (bucket-id debug-no-zbuf1))
+        
+        
+        (dma-buffer-add-gs-set-flusha buf (alpha-1 (new 'static 'gs-alpha :b #x1 :d #x1)) (tex1-1 (new 'static 'gs-tex1 :mmag #x1 :mmin #x1)))
+        (let ((font-ctx (new 'stack 'font-context *font-default-matrix* 510 160 0.0 (font-color default) (font-flags right shadow kerning large))))
+          (set! (-> font-ctx scale) 0.325)
+          (draw-string-adv *pc-encoded-matt-str* buf font-ctx)))
+)
 
+(when (and (= in-menu #t)(!= granger-ngi 0)(= (-> *game-info* task-deaths) 4)(not (cpad-hold? 0 l1)))
+  (set! granger-ngi 0)
+)
+
+(when (and (= in-menu #t)(= (-> *game-info* task-deaths) 4)(cpad-hold? 0 l1))
+  (+! granger-ngi 1)
+  (when (= granger-ngi 1)
+    (set! grangerd-string "()")
+  )
+  (when (= granger-ngi 60)
+    (set! grangerd-string "(.)")
+  )
+  (when (= granger-ngi 120)
+    (set! grangerd-string "(..)")
+  )
+  (when (= granger-ngi 180)
+    (set! grangerd-string "(...)")
+  )
+  (when (= granger-ngi 240)
+    (set! grangerd-string "(!..)")
+  )
+  (when (= granger-ngi 300)
+    (set! grangerd-string "(!!.)")
+  )
+  (when (= granger-ngi 360)
+    (set! grangerd-string "(!!!)")
+  )
+  (when (= granger-ngi 420)
+    (set! granger-newgame #t)
+  )
+)
+(when (= granger-newgame #t)
+  (+! granger-newgamei 1)
+  (when (= granger-newgamei 1)
+    (set! camera-locked #f)
+    (remove-setting-by-arg0 *setting-control* 'mode-name)
+    (set! in-menu #f)
+    (set! menu-pressed? #f)
+    (set! wait-start #t)
+    (set! pause-menu-blocked? #f)
+    (set! string-printed? #f)
+  )
+  (when (= granger-newgamei 3)
+    (initialize! *game-info* 'game (the-as game-save #f) (the-as string #f))
+  )
+  (when (= granger-newgamei 120)
+    (set! (-> *game-info* task-deaths) 7)
+    (set! granger-newgame #f)
+    (set! granger-newgamei 0)
+  )
+)
+
+
+
+(when (and (= (pause-allowed?) #t)(= granger-ohshitalways #t))
+  (set! (-> (level-get-target-inside *level*) mood-func)update-mood-nest)
+  (send-event (ppointer->process *time-of-day*) 'change 'ratio 140.0) 
+  (set! (-> *time-of-day-context* overide-enable) #f)
+  (set! (-> *mood-control* overide-weather-flag) #t)
+  (set! (-> *mood-control* overide fog) 1.0)
+  (set! (-> *mood-control* overide cloud) 1.0)
+  (set! granger-level 1)
+  (set! granger-activated? #t)
+)
+
+
+(when (and (= (-> *game-info* task-deaths) 7)(= granger-mode #t)
+    (or
+      (and
+        (task-node-closed? (game-task-node city-help-kid-introduction))
+        (not (task-node-closed? (game-task-node city-help-kid-resolution)))
+      )
+      (and
+        (task-node-closed? (game-task-node city-krew-delivery-introduction))
+        (not (task-node-closed? (game-task-node city-krew-delivery-resolution)))
+      )
+      (and
+        (task-node-closed? (game-task-node city-escort-kid-introduction))
+        (not (task-node-closed? (game-task-node city-escort-kid-resolution)))
+      )
+      (and
+        (task-node-closed? (game-task-node city-protect-water-slums-introduction))
+        (not (task-node-closed? (game-task-node city-protect-water-slums-resolution)))
+      )
+    )
+  )
+  (set! granger-mode #f)
+)
+
+
+(when (= (-> *game-info* task-deaths) 7)
+  (when (and (= set-functions #f) (= (pause-allowed?) #t)
+  (or 
+  (= rapid-fire-option #f)
+  (= double-tap-option #f)
+  (= guard-shot-option #f)
+  (= guard-grenade-option #f)
+  (= leg-random-shot #f)
+  (= mehrunes-shot-option #f)
+  (= mag-bag-option #f)
+  (= blast-shot-option #f)
+  (= pm-extra-shot-option #f)
+  ) 
+  (= (-> *game-info* task-deaths) 7)
+  )
+  (set! enter-granger #t)
+  (print "Entered Granger")
+  )
+  (when 
+    (or
+      (and
+        (task-node-closed? (game-task-node city-help-kid-introduction))
+        (not (task-node-closed? (game-task-node city-help-kid-resolution)))
+      )
+      (and
+        (task-node-closed? (game-task-node city-krew-delivery-introduction))
+        (not (task-node-closed? (game-task-node city-krew-delivery-resolution)))
+      )
+      (and
+        (task-node-closed? (game-task-node city-escort-kid-introduction))
+        (not (task-node-closed? (game-task-node city-escort-kid-resolution)))
+      )
+      (and
+        (task-node-closed? (game-task-node city-protect-water-slums-introduction))
+        (not (task-node-closed? (game-task-node city-protect-water-slums-resolution)))
+      )
+    )
+    (set! exit-granger #t)
+    (print "Exited Granger")
+  )
+)
+
+
+
+
+(when (and (= exit-granger #t)(= set-functions #t))
+  (+! exit-grangeri 1)
+  (when (= exit-grangeri 60)
+  (set! granger-mode #f)
+  (set! exit-granger #f)
+  (set! exit-grangeri 0)
+  (set! set-functions #f)
+  )
+)
+
+(when (and (= enter-granger #t)(= set-functions #f))
+(+! enter-grangeri 1)
+(when (= enter-grangeri 300)
+  (set! (-> *game-info* fuel) 10.0)
+  (set! modifier-string "DEATH MODE")
+  (set! weapon-mod-toggle #t)
+  (set! (-> *game-info* task-deaths) 7)
+  (logior! (-> *game-info* secrets) (game-secrets hero-mode))
+  (set! hell-mode-option #t)
+  (set! rapid-fire-option #t)
+  (set! double-tap-option #t)
+  (set! guard-shot-option #t)
+  (set! guard-grenade-option #t)
+  (set! leg-random-shot #t)
+  (set! pm-extra-shot-option #t)
+  (set! mag-bag-option #t)
+  (set! blast-shot-option #t)
+  (set! mehrunes-shot-option #t)
+  (set! granger-ohshitalways #t)
+  (set! peacemaker-ability #t)
+  (set! tp-fb #t)
+  (set! hover-damage #t)
+  (set! dark-traffic #t)
+  (set! trip-metalheads #t)
+  (set! target-explode #t)
+  (set! granger-mode #t)
+  (set! enter-granger #f)
+  (set! enter-grangeri 0)
+  (set! set-functions #t)
+)
+)
+
+(when (and (= granger-ohshitalways #t)(= (pause-allowed?) #t)(!= (-> *game-info* task-deaths) 7))
+  (set! (-> (level-get-target-inside *level*) mood-func)update-mood-default)
+  (send-event (ppointer->process *time-of-day*) 'change 'ratio 40.0) 
+  (set! (-> *time-of-day-context* overide-enable) #f)
+  (set! (-> *mood-control* overide-weather-flag) #f)
+  (set! (-> *mood-control* overide fog) 1.0)
+  (set! (-> *mood-control* overide cloud) 1.0)
+  (set! granger-level 0)
+  (set! granger-activated? #t)
+  (set! granger-resist 0)
+  (set! granger-mode #f)
+  (set! granger-ohshitalways #f)
+  (set! rapid-fire-option #f)
+  (set! double-tap-option #f)
+  (set! guard-shot-option #f)
+  (set! guard-grenade-option #f)
+  (set! leg-random-shot #f)
+  (set! pm-extra-shot-option #f)
+  (set! mag-bag-option #f)
+  (set! blast-shot-option #f)
+  (set! mehrunes-shot-option #f)
+  (set! mission-grab-1 #f)
+  (set! mission-grab-2 #f)
+  (set! mission-grab-3 #f)
+  (set! mission-grab-4 #f)
+  (set! orb-grab-1 #f)
+  (set! orb-grab-2 #f)
+  (set! orb-grab-3 #f)
+  (set! mod-pick #t)
+)
 
 ;DISABLING ALL OF THE POWERFUL SECRETS
+  (when (= granger-mode #f)
     (when (and (= settingunlocked2 #f)(logtest? (-> *game-info* secrets) (game-secrets endless-ammo)))
       (logclear! (-> *game-info* secrets) (game-secrets endless-ammo))
     )
@@ -129,6 +352,7 @@ FINISHED :D
     (when (and (= settingunlocked3 #f)(= inv-frame-start #f)(= inv-frame-start-g #f)(logtest? (-> *game-info* secrets) (game-secrets invulnerable)))
       (logclear! (-> *game-info* secrets) (game-secrets invulnerable))
     )
+  )
 
 
 
@@ -157,6 +381,14 @@ FINISHED :D
     (print "[MOD] YOU'RE NOT ALLOWED TO RE-ROLL WHILE IN HELL-MODE }:]
 ")
     (set! mod-reroll #f)
+  )
+)
+
+(when (and (= hell-mode-option #t)(= (-> *game-info* fuel) 10.0) (not (logtest? (-> *game-info* secrets) (game-secrets hero-mode))))
+  (set! mod-pick #t)
+  (set! hell-mode-option #f)
+  (when (= (-> *game-info* task-deaths) 7)
+    (set! (-> *game-info* task-deaths) 0)
   )
 )
 
@@ -478,10 +710,12 @@ FINISHED :D
   )
 
   ;Legendary Weapon Mod Saves
-  (when (and (and (= (-> *game-info* buzzer-total) 0.0)(= (-> *game-info* total-trys) 0))(or (= leg-random-shot #t)(= pm-extra-shot-option #t))) ;if none
-    (set! pm-extra-shot-option #f)
-    (set! leg-random-shot #f)
-    (set! leg-got? #f)
+  (when (!= (-> *game-info* task-deaths) 7) 
+    (when (and (and (= (-> *game-info* buzzer-total) 0.0)(= (-> *game-info* total-trys) 0))(or (= leg-random-shot #t)(= pm-extra-shot-option #t))) ;if none
+      (set! pm-extra-shot-option #f)
+      (set! leg-random-shot #f)
+      (set! leg-got? #f)
+    )
   )
   (when (and (= (-> *game-info* buzzer-total) 1.0)(= pm-extra-shot-option #f)) ;if 1 on buzzer-total, legendary extra chanced peacemaker-shot
     (set! pm-extra-shot-option #t)
@@ -631,9 +865,9 @@ FINISHED :D
 
 
 
-
+(when (!= (-> *game-info* task-deaths) 7)
   ;Mission-Based Weapon Mod Gets
-  (when (and (!= (-> *game-info* fuel) 10.0)(task-node-closed? (game-task-node city-krew-delivery-resolution))(= mission-grab-1 #f)) ;after red gun, get rapid fire
+  (when (and (task-node-closed? (game-task-node city-krew-delivery-resolution))(= mission-grab-1 #f)) ;after red gun, get rapid fire
     (set! mission-grab-1 #t)
     (set! rapid-fire-option #t)
     (print "[GUN-MOD] Rapid Fire Acquired! Weapon Mod set to mod-default-gun
@@ -644,7 +878,7 @@ FINISHED :D
     (set! recieved-gm #t) ;sets the draw func on
   )
 
-  (when (and (!= (-> *game-info* fuel) 10.0)(task-node-closed? (game-task-node sewer-enemy-resolution))(= mission-grab-2 #f)) ;after yellow gun, get double tap
+  (when (and (task-node-closed? (game-task-node sewer-enemy-resolution))(= mission-grab-2 #f)) ;after yellow gun, get double tap
     (set! mission-grab-2 #t)
     (set! double-tap-option #t)
     (print "[GUN-MOD] Chanced Double Tap Acquired! Weapon Mod set to mod-default-gun
@@ -655,7 +889,7 @@ FINISHED :D
     (set! recieved-gm2 #t)  ;sets the draw func on
   )
 
-  (when (and (!= (-> *game-info* fuel) 10.0)(task-node-closed? (game-task-node ruins-enemy-introduction))(= mission-grab-3 #f)) ;after blue gun, get chanced guard shot
+  (when (and (task-node-closed? (game-task-node ruins-enemy-introduction))(= mission-grab-3 #f)) ;after blue gun, get chanced guard shot
     (set! mission-grab-3 #t)
     (set! guard-shot-option #t)
     (print "[GUN-MOD] Chanced Guard Shot Acquired! Weapon Mod set to mod-default-gun
@@ -666,7 +900,7 @@ FINISHED :D
     (set! recieved-gm3 #t)  ;sets the draw func on
   )
 
-  (when (and (!= (-> *game-info* fuel) 10.0)(task-node-closed? (game-task-node sewer-escort-get-gun))(= mission-grab-4 #f)) ;after dark gun, get chanced predator shot
+  (when (and (task-node-closed? (game-task-node sewer-escort-get-gun))(= mission-grab-4 #f)) ;after dark gun, get chanced predator shot
     (set! mission-grab-4 #t)
     (set! guard-grenade-option #t)
     (print "[GUN-MOD] Chanced Predator Shot Acquired! Weapon Mod set to mod-default-gun
@@ -676,7 +910,7 @@ FINISHED :D
     (sound-play "board-boost")
     (set! recieved-gm4 #t)  ;sets the draw func on
   )
-  (when (and (= (-> *game-info* fuel) 10.0)(or (= mission-grab-1 #f)(= mission-grab-2 #f)(= mission-grab-3 #f)(= mission-grab-4 #f)))
+  (when (or (= mission-grab-1 #f)(= mission-grab-2 #f)(= mission-grab-3 #f)(= mission-grab-4 #f))
     (set! mission-grab-1 #t)
     (set! mission-grab-2 #t)
     (set! mission-grab-3 #t)
@@ -803,7 +1037,7 @@ FINISHED :D
   )
 )
 
-
+)
 
 
 
@@ -4491,7 +4725,8 @@ Eco War is similar to BlackJack, but with a twist!
         (draw-string-adv *pc-encoded-matt-str* buf font-ctx)))
 )
 
-(when (= in-menu #t) ;displays modifier
+(when (= granger-mode #f)
+  (when (= in-menu #t) ;displays modifier
   (clear matt-str)
     (clear *pc-encoded-matt-str*)
     (format matt-str "<COLOR_WHITE>CURRENT MODIFIER:~%<COLOR_RED>~S"
@@ -4505,6 +4740,24 @@ Eco War is similar to BlackJack, but with a twist!
       (let ((font-ctx (new 'stack 'font-context *font-default-matrix* 510 0 0.0 (font-color default) (font-flags right shadow kerning large))))
         (set! (-> font-ctx scale) 0.325)
         (draw-string-adv *pc-encoded-matt-str* buf font-ctx)))
+)
+)
+(when (= granger-mode #t)
+  (when (= in-menu #t) ;displays modifier
+  (clear matt-str)
+    (clear *pc-encoded-matt-str*)
+    (format matt-str "<COLOR_WHITE>CURRENT MODIFIER:~%<COLOR_PINK>DEATH MODE"
+    modifier-string
+    )
+    (pc-encode-utf8-string matt-str *pc-encoded-matt-str*)
+    (with-dma-buffer-add-bucket ((buf (-> (current-frame) global-buf)) (bucket-id debug-no-zbuf1))
+      ;; reset bucket settings prior to drawing - font won't do this for us, and
+      ;; draw-raw-image can sometimes mess them up. (intro sequence)
+      (dma-buffer-add-gs-set-flusha buf (alpha-1 (new 'static 'gs-alpha :b #x1 :d #x1)) (tex1-1 (new 'static 'gs-tex1 :mmag #x1 :mmin #x1)))
+      (let ((font-ctx (new 'stack 'font-context *font-default-matrix* 510 0 0.0 (font-color default) (font-flags right shadow kerning large))))
+        (set! (-> font-ctx scale) 0.325)
+        (draw-string-adv *pc-encoded-matt-str* buf font-ctx)))
+)
 )
 
 (when (and (not (cpad-hold? 0 l3))(!= (-> *game-info* fuel) 10.0)(= in-menu #t)(= mod-reroll #f)) ;displays control menu
@@ -4714,26 +4967,26 @@ Eco War is similar to BlackJack, but with a twist!
 (when (= press-frame 1)
     (set! mod-reroll-string "Re-Rolling")
   )
-  (when (= press-frame 60)
+  (when (= press-frame 20)
     (set! mod-reroll-string "Re-Rolling.")
   )
-  (when (= press-frame 120)
+  (when (= press-frame 40)
     (set! mod-reroll-string "Re-Rolling..")
   )
-  (when (= press-frame 180)
+  (when (= press-frame 60)
     (set! mod-reroll-string "Re-Rolling...")
   )
-    (when (= press-frame 240)
+    (when (= press-frame 80)
     (set! mod-reroll-string "Re-Rolling..!")
   )
-      (when (= press-frame 300)
+      (when (= press-frame 100)
     (set! mod-reroll-string "Re-Rolling.!!")
   )
-        (when (= press-frame 360)
+        (when (= press-frame 120)
     (set! mod-reroll-string "Re-Rolling!!!")
   )
   
-  (when (= press-frame 390)
+  (when (= press-frame 130)
     (set! mod-reroll #t)
     (set! press-frame 0)
   )

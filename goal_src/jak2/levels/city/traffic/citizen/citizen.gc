@@ -86,7 +86,7 @@
   (logior! (-> this enemy-flags) (enemy-flag look-at-move-dest))
   (set! (-> this hit-points) (-> this enemy-info default-hit-points))
   (when (>= granger-level 1)
-    (set! (-> this hit-points) granger-resist)
+    (set! (-> this hit-points) (rand-vu-int-range 20 999))
   )
   (set! (-> this fated-time) 0)
   (set! (-> this hit-by-player-count) 0)
