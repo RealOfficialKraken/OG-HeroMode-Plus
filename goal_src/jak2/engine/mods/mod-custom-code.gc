@@ -99,26 +99,13 @@ FINISHED :D
 
 
 
-      #|(when (and (= guardv-5 #f)(send-event *traffic-manager* 'set-alert-level 5))
-        (set! guardv-5 #t)
-      )
-      (when (and (= guardv-5 #t)(not (send-event *traffic-manager* 'set-alert-level 5)))
-        (set! guardv-5 #f)
-      )
-
-;guard vehicle megaphone lines
-(when (and (rand-vu-percent? 0.001)(= guardv-5 #t))
-  (let ((o 0))
-    (set! o (rand-vu-int-range 1 25)) 
-  )
-)|#
 
 
-
+#|
 (when (and (= in-menu #t)(= (-> *game-info* task-deaths) 4))
   (clear matt-str)
       (clear *pc-encoded-matt-str*)
-    (format matt-str "<COLOR_WHITE>L1:<COLOR_PINK>Start Death Mode (New Game) ~S"
+    (format matt-str "<COLOR_WHITE>L1:<COLOR_PINK>Start Death Mode (Alpha) ~S"
   grangerd-string
       )
       (pc-encode-utf8-string matt-str *pc-encoded-matt-str*)
@@ -182,7 +169,6 @@ FINISHED :D
     (set! granger-newgamei 0)
   )
 )
-
 
 
 (when (and (= (pause-allowed?) #t)(= granger-ohshitalways #t))
@@ -338,7 +324,7 @@ FINISHED :D
   (set! orb-grab-3 #f)
   (set! mod-pick #t)
 )
-
+|#
 ;DISABLING ALL OF THE POWERFUL SECRETS
   (when (= granger-mode #f)
     (when (and (= settingunlocked2 #f)(logtest? (-> *game-info* secrets) (game-secrets endless-ammo)))
@@ -2098,7 +2084,7 @@ FINISHED :D
 )
 
 ;POPUP MENU
-(when (and (= on-table? #f)(not (cpad-pressed? 0 r3))(not *scene-player*) (= (paused?) #f)(= in-granger? #f)(= weapon-mod-toggle #t)(= (-> (level-get-target-inside *level*) name) 'hiphog))
+(when (and (not (task-node-open? (game-task-node city-whack-resolution)))(= on-table? #f)(not (cpad-pressed? 0 r3))(not *scene-player*) (= (paused?) #f)(= in-granger? #f)(= weapon-mod-toggle #t)(= (-> (level-get-target-inside *level*) name) 'hiphog))
   (clear matt-str)
     (clear *pc-encoded-matt-str*)
     (format matt-str "<COLOR_RED>R3:<COLOR_PINK> Play Eco War"
