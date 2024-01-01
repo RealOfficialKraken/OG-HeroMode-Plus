@@ -101,11 +101,11 @@ FINISHED :D
 
 
 
-#|
+
 (when (and (= in-menu #t)(= (-> *game-info* task-deaths) 4))
   (clear matt-str)
       (clear *pc-encoded-matt-str*)
-    (format matt-str "<COLOR_WHITE>L1:<COLOR_PINK>Start Death Mode (Alpha) ~S"
+    (format matt-str "<COLOR_WHITE>L1: <COLOR_PINK>New Game in Apocalypse Mode ~S"
   grangerd-string
       )
       (pc-encode-utf8-string matt-str *pc-encoded-matt-str*)
@@ -113,9 +113,61 @@ FINISHED :D
         
         
         (dma-buffer-add-gs-set-flusha buf (alpha-1 (new 'static 'gs-alpha :b #x1 :d #x1)) (tex1-1 (new 'static 'gs-tex1 :mmag #x1 :mmin #x1)))
-        (let ((font-ctx (new 'stack 'font-context *font-default-matrix* 510 160 0.0 (font-color default) (font-flags right shadow kerning large))))
+        (let ((font-ctx (new 'stack 'font-context *font-default-matrix* 510 130 0.0 (font-color default) (font-flags right shadow kerning large))))
           (set! (-> font-ctx scale) 0.325)
           (draw-string-adv *pc-encoded-matt-str* buf font-ctx)))
+)
+
+(when (and (= in-menu #t) (= (-> *game-info* task-deaths) 7))
+  (clear matt-str)
+      (clear *pc-encoded-matt-str*)
+    (format matt-str "<COLOR_WHITE>L1: <COLOR_PINK>~S"
+  modifiers-toggle-string
+      )
+      (pc-encode-utf8-string matt-str *pc-encoded-matt-str*)
+      (with-dma-buffer-add-bucket ((buf (-> (current-frame) global-buf)) (bucket-id debug-no-zbuf1))
+        
+        
+        (dma-buffer-add-gs-set-flusha buf (alpha-1 (new 'static 'gs-alpha :b #x1 :d #x1)) (tex1-1 (new 'static 'gs-tex1 :mmag #x1 :mmin #x1)))
+        (let ((font-ctx (new 'stack 'font-context *font-default-matrix* 510 120 0.0 (font-color default) (font-flags right shadow kerning large))))
+          (set! (-> font-ctx scale) 0.325)
+          (draw-string-adv *pc-encoded-matt-str* buf font-ctx)))
+)
+
+(when (and (= in-menu #t)(= (-> *game-info* task-deaths) 4)(cpad-hold? 0 l2))
+  (+! toffm-int 1)
+  (when (and (= toffm-int 60)(= (-> *game-info* fuel) 0.0))
+    (set! modifiers-toggle-string "All Modifiers Turned On")
+    (set! (-> *game-info* fuel) 10.0)
+    (set! toffm-int 0)
+    (set! turn-on-modifiers #f)
+  )
+  (when (and (= toffm-int 60)(= (-> *game-info* fuel) 10.0))
+    (set! modifiers-toggle-string "All Modifiers Turned Off")
+    (set! (-> *game-info* fuel) 0.0)
+    (set! toffm-int 0)
+    (set! turn-on-modifiers #f)
+  )
+)
+
+(when (and (= in-menu #t)(= (-> *game-info* task-deaths) 4)(not (cpad-hold? 0 l2)))
+  (set! toffm-int 0)
+  (when (= (-> *game-info* fuel) 0.0)
+    (set! modifiers-toggle-string "Toggle Modifiers On")
+  )
+  (when (= (-> *game-info* fuel) 10.0)
+    (set! modifiers-toggle-string "Toggle Modifiers Off (broken for now)")
+  )
+)
+
+(when (= toffm-int 1)
+  (set! modifiers-toggle-string "(.  )")
+)
+(when (= toffm-int 15)
+  (set! modifiers-toggle-string "(.. )")
+)
+(when (= toffm-int 45)
+  (set! modifiers-toggle-string "(...)")
 )
 
 (when (and (= in-menu #t)(!= granger-ngi 0)(= (-> *game-info* task-deaths) 4)(not (cpad-hold? 0 l1)))
@@ -183,7 +235,9 @@ FINISHED :D
 )
 
 
-(when (and (= (-> *game-info* task-deaths) 7)(= granger-mode #t)
+;(when (and (= (-> *game-info* task-deaths) 7)(= granger-mode #t) (or (and (task-node-closed? (game-task-node city-help-kid-introduction)) (not (task-node-closed? (game-task-node city-help-kid-resolution))) ) (and (task-node-closed? (game-task-node city-krew-delivery-introduction)) (not (task-node-closed? (game-task-node city-krew-delivery-resolution))) ) (and (task-node-closed? (game-task-node city-escort-kid-introduction)) (not (task-node-closed? (game-task-node city-escort-kid-resolution))) ) (and (task-node-closed? (game-task-node city-protect-water-slums-introduction)) (not (task-node-closed? (game-task-node city-protect-water-slums-resolution))) )))(set! granger-mode #f))
+
+#|(when (and (= (-> *game-info* task-deaths) 7)(= granger-mode #t)
     (or
       (and
         (task-node-closed? (game-task-node city-help-kid-introduction))
@@ -204,9 +258,9 @@ FINISHED :D
     )
   )
   (set! granger-mode #f)
-)
+)|#
 
-
+#|
 (when (= (-> *game-info* task-deaths) 7)
   (when (and (= set-functions #f) (= (pause-allowed?) #t)
   (or 
@@ -225,6 +279,7 @@ FINISHED :D
   (set! enter-granger #t)
   (print "Entered Granger")
   )
+
   (when 
     (or
       (and
@@ -249,9 +304,31 @@ FINISHED :D
   )
 )
 
-
-
-
+|#
+(when (= (-> *game-info* task-deaths) 7)
+  (if 
+    (or
+        (and
+          (task-node-closed? (game-task-node city-help-kid-introduction))
+          (not (task-node-closed? (game-task-node city-help-kid-resolution)))
+        )
+        (and
+          (task-node-closed? (game-task-node city-krew-delivery-introduction))
+          (not (task-node-closed? (game-task-node city-krew-delivery-resolution)))
+        )
+        (and
+          (task-node-closed? (game-task-node city-escort-kid-introduction))
+          (not (task-node-closed? (game-task-node city-escort-kid-resolution)))
+        )
+        (and
+          (task-node-closed? (game-task-node city-protect-water-slums-introduction))
+          (not (task-node-closed? (game-task-node city-protect-water-slums-resolution)))
+        )
+    )
+      (set! exit-granger #t)
+      (set! enter-granger #t)
+  )
+)
 (when (and (= exit-granger #t)(= set-functions #t))
   (+! exit-grangeri 1)
   (when (= exit-grangeri 60)
@@ -264,9 +341,9 @@ FINISHED :D
 
 (when (and (= enter-granger #t)(= set-functions #f))
 (+! enter-grangeri 1)
-(when (= enter-grangeri 300)
+(when (= enter-grangeri 60)
   (set! (-> *game-info* fuel) 10.0)
-  (set! modifier-string "DEATH MODE")
+  (set! modifier-string "APOCALYPSE MODE")
   (set! weapon-mod-toggle #t)
   (set! (-> *game-info* task-deaths) 7)
   (logior! (-> *game-info* secrets) (game-secrets hero-mode))
@@ -324,7 +401,7 @@ FINISHED :D
   (set! orb-grab-3 #f)
   (set! mod-pick #t)
 )
-|#
+
 ;DISABLING ALL OF THE POWERFUL SECRETS
   (when (= granger-mode #f)
     (when (and (= settingunlocked2 #f)(logtest? (-> *game-info* secrets) (game-secrets endless-ammo)))
@@ -4732,7 +4809,7 @@ Eco War is similar to BlackJack, but with a twist!
   (when (= in-menu #t) ;displays modifier
   (clear matt-str)
     (clear *pc-encoded-matt-str*)
-    (format matt-str "<COLOR_WHITE>CURRENT MODIFIER:~%<COLOR_PINK>DEATH MODE"
+    (format matt-str "<COLOR_WHITE>CURRENT MODIFIER:~%<COLOR_PINK>APOCALYPSE MODE"
     modifier-string
     )
     (pc-encode-utf8-string matt-str *pc-encoded-matt-str*)

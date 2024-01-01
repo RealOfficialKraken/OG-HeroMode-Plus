@@ -603,6 +603,11 @@ CURRENT BUGS:
 (define set-functions #f)
 (define enter-granger #f)
 (define exit-granger #f)
+(define turn-on-modifiers #f)
+(define turn-off-modifiers #f)
+(define-extern modifiers-toggle-string string)
+(define tonm-int 0)
+(define toffm-int 0)
 
 (define pm-shot-trigger #f) ;these had to be placed here due to load order
 
