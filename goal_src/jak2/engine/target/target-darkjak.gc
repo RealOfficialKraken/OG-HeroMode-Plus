@@ -7,6 +7,7 @@
 
 (define-extern *darkjak-trans-mods* surface)
 
+
 ;; DECOMP BEGINS
 
 (defbehavior target-darkjak-setup target ((arg0 symbol))
