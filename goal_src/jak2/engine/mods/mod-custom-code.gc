@@ -448,9 +448,9 @@ FINISHED :D
   (set! orb-grab-3 #f)
   (set! mod-pick #t)
 )
-
+#| disabled until release.
 ;DISABLING ALL OF THE POWERFUL SECRETS
-  (when (= granger-mode #f)
+  (when (and (= granger-mode #f)(= (-> *game-info* fuel) 10.0))
     (when (and (= settingunlocked2 #f)(logtest? (-> *game-info* secrets) (game-secrets endless-ammo)))
       (logclear! (-> *game-info* secrets) (game-secrets endless-ammo))
     )
@@ -465,7 +465,7 @@ FINISHED :D
   )
 
 
-
+|#
 
 ;WEAPON MOD SPAWNS, REWARDS, AND SAVES
 ;Once a legendary is spawned it unlocks it for you. Later ill figure how to do it upon pickup, but for now I have no fucking clue. :L
@@ -1571,7 +1571,7 @@ FINISHED :D
 (when (and (= (paused?) #f)(not *scene-player*)(= (pause-allowed?) #t)(!= (-> *target* fact health) 0.0)(= inv-frame-start-g #t))
   (+! inv-frame-counter-g 1)
   (logior! (-> *game-info* secrets) (game-secrets invulnerable))
-  (when (>= inv-frame-counter-g 2)
+  (when (>= inv-frame-counter-g 10)
     (logclear! (-> *game-info* secrets) (game-secrets invulnerable))
     (set! inv-frame-counter-g 0)
     (set! inv-frame-start-g #f)
@@ -1976,7 +1976,7 @@ FINISHED :D
 ;trip-metalheads function
 ;--------------------------------------------
 
-  (when (and (or (cpad-pressed? 0 l1)(cpad-pressed? 0 r1)(cpad-pressed? 0 x)(cpad-pressed? 0 square)(cpad-pressed? 0 circle))(rand-vu-percent? 0.008)(= trip-metalheads #t))
+  (when (and (or (cpad-pressed? 0 l1)(cpad-pressed? 0 x)(cpad-pressed? 0 square)(cpad-pressed? 0 circle))(rand-vu-percent? 0.008)(= trip-metalheads #t))
     (send-event *target* 'loading)
     (set! trip-start #t)
     (when (and (send-event *target* 'loading)(= trip-cooldown 0))
@@ -2208,7 +2208,7 @@ FINISHED :D
 )
 
 ;POPUP MENU
-(when (and (not (task-node-open? (game-task-node city-whack-resolution)))(= on-table? #f)(not (cpad-pressed? 0 r3))(not *scene-player*) (= (paused?) #f)(= in-granger? #f)(= weapon-mod-toggle #t)(= (-> (level-get-target-inside *level*) name) 'hiphog))
+(when (and (= (-> *game-info* fuel) 10.0) (not (task-node-open? (game-task-node city-whack-resolution)))(= on-table? #f)(not (cpad-pressed? 0 r3))(not *scene-player*) (= (paused?) #f)(= in-granger? #f)(= weapon-mod-toggle #t)(= (-> (level-get-target-inside *level*) name) 'hiphog))
   (clear matt-str)
     (clear *pc-encoded-matt-str*)
     (format matt-str "<COLOR_RED>R3:<COLOR_PINK> Play Eco War"
@@ -2224,7 +2224,7 @@ FINISHED :D
 )
 
 ;CONTROLS FOR ALL STATES
-(when (and (not *scene-player*) (= (paused?) #f)(= weapon-mod-toggle #t))
+(when (and (not *scene-player*)(= (-> *game-info* fuel) 10.0) (= (paused?) #f)(= weapon-mod-toggle #t))
   (when (and (cpad-pressed? 0 r3)(= in-hiphog? #f)(= (-> (level-get-target-inside *level*) name) 'hiphog)) ;enter table
     (set! pause-menu-blocked? #t)
     (set! bj-start #t)
@@ -4947,7 +4947,7 @@ Eco War is similar to BlackJack, but with a twist!
     ~%<COLOR_WHITE>Any eco pickup can fill up the rest of your meter
     ~%but any time you anger the guards, theyre alerted to max level
     ~%<COLOR_RED>Chanced Trip / Gain 25 Metalheads
-    ~%<COLOR_WHITE>Can trip from shooting, rolling, punching, jumping, or twirling
+    ~%<COLOR_WHITE>Can trip from rolling, punching, jumping, or twirling
     ~%but every time this happens, gain 25 metalheads (on-cooldown)
     ~%<COLOR_RED>On Hit Target Explode / GunGame Ammo
     ~%<COLOR_WHITE>Entering the gun course refills all of your ammo to maximum
@@ -4983,7 +4983,7 @@ Eco War is similar to BlackJack, but with a twist!
     ~%<COLOR_WHITE>Any eco pickup can fill up the rest of your meter
     ~%but any time you anger the guards, theyre alerted to max level
     ~%<COLOR_RED>Chanced Trip / Gain 25 Metalheads
-    ~%<COLOR_WHITE>Can trip from shooting, rolling, punching, jumping, or twirling
+    ~%<COLOR_WHITE>Can trip from rolling, punching, jumping, or twirling
     ~%but every time this happens, gain 25 metalheads (on-cooldown)
     ~%<COLOR_RED>On Hit Target Explode / GunGame Ammo
     ~%<COLOR_WHITE>Entering the gun course refills all of your ammo to maximum
@@ -5009,7 +5009,7 @@ Eco War is similar to BlackJack, but with a twist!
     ~%<COLOR_YELLOW>All modifiers are active:
     ~%<COLOR_GREEN>On-Death TP-FB Challenge (DISABLED)
     ~%<COLOR_YELLOW>You beat TP-FB in Hero Mode! I'm actually impressed
-    ~%Blast shot has been rewarded in your inventory. Congrats!
+    ~%Blast shot has been rewarded in your gun mod selection. Congrats!
     ~%<COLOR_RED>Peacemaker Ability / 1 Hit Boss
     ~%<COLOR_WHITE>At all times, have a chance to fire 100 peacemaker shots
     ~%but you must fight every boss with 1 HP
@@ -5020,7 +5020,7 @@ Eco War is similar to BlackJack, but with a twist!
     ~%<COLOR_WHITE>Any eco pickup can fill up the rest of your meter
     ~%but any time you anger the guards, theyre alerted to max level
     ~%<COLOR_RED>Chanced Trip / Gain 25 Metalheads
-    ~%<COLOR_WHITE>Can trip from shooting, rolling, punching, jumping, or twirling
+    ~%<COLOR_WHITE>Can trip from rolling, punching, jumping, or twirling
     ~%but every time this happens, gain 25 metalheads (on-cooldown)
     ~%<COLOR_RED>On Hit Target Explode / GunGame Ammo
     ~%<COLOR_WHITE>Entering the gun course refills all of your ammo to maximum
@@ -5045,7 +5045,7 @@ Eco War is similar to BlackJack, but with a twist!
     ~%<COLOR_YELLOW>All modifiers are active:
     ~%<COLOR_GREEN>On-Death TP-FB Challenge (DISABLED)
     ~%<COLOR_YELLOW>You beat TP-FB in Hero Mode! I'm actually impressed
-    ~%Blast shot has been rewarded in your inventory. Congrats!
+    ~%Blast shot has been rewarded in your gun mod selection. Congrats!
     ~%<COLOR_RED>Peacemaker Ability / 1 Hit Boss
     ~%<COLOR_WHITE>At all times, have a chance to fire 100 peacemaker shots
     ~%but you must fight every boss with 1 HP
@@ -5056,7 +5056,7 @@ Eco War is similar to BlackJack, but with a twist!
     ~%<COLOR_WHITE>Any eco pickup can fill up the rest of your meter
     ~%but any time you anger the guards, theyre alerted to max level
     ~%<COLOR_RED>Chanced Trip / Gain 25 Metalheads
-    ~%<COLOR_WHITE>Can trip from shooting, rolling, punching, jumping, or twirling
+    ~%<COLOR_WHITE>Can trip from rolling, punching, jumping, or twirling
     ~%but every time this happens, gain 25 metalheads (on-cooldown)
     ~%<COLOR_RED>On Hit Target Explode / GunGame Ammo
     ~%<COLOR_WHITE>Entering the gun course refills all of your ammo to maximum
@@ -5102,35 +5102,23 @@ Eco War is similar to BlackJack, but with a twist!
   )
 )
 
-(when (and (= mushie-unlocked? #t)(= done-it #f)(= in-menu #t)(= mushroom-movies #f)(not (cpad-hold? 0 r1)))
+;This is where the max ammo can be bought
+
+(when (and (= done-it #f)(= in-menu #t)(not (cpad-hold? 0 r1)))
   (clear matt-str)
     (clear *pc-encoded-matt-str*)
-    (format matt-str "<COLOR_WHITE>R1: <COLOR_RED>Enable Mushroom Movies")
+    (format matt-str "<COLOR_WHITE>R1: <COLOR_RED>Buy Max Ammo (20 Gems)")
     (pc-encode-utf8-string matt-str *pc-encoded-matt-str*)
     (with-dma-buffer-add-bucket ((buf (-> (current-frame) global-buf)) (bucket-id debug-no-zbuf1))
       ;; reset bucket settings prior to drawing - font won't do this for us, and
       ;; draw-raw-image can sometimes mess them up. (intro sequence)
       (dma-buffer-add-gs-set-flusha buf (alpha-1 (new 'static 'gs-alpha :b #x1 :d #x1)) (tex1-1 (new 'static 'gs-tex1 :mmag #x1 :mmin #x1)))
-      (let ((font-ctx (new 'stack 'font-context *font-default-matrix* 510 100 0.0 (font-color default) (font-flags shadow kerning large right))))
+      (let ((font-ctx (new 'stack 'font-context *font-default-matrix* 510 98 0.0 (font-color default) (font-flags shadow kerning large right))))
         (set! (-> font-ctx scale) 0.325)
         (draw-string-adv *pc-encoded-matt-str* buf font-ctx)))
 )
 
-(when (and (= mushie-unlocked? #t)(= done-it #f)(= in-menu #t)(= mushroom-movies #t)(not (cpad-hold? 0 r1)))
-  (clear matt-str)
-    (clear *pc-encoded-matt-str*)
-    (format matt-str "<COLOR_WHITE>R1: <COLOR_GREEN>Disable Mushroom Movies")
-    (pc-encode-utf8-string matt-str *pc-encoded-matt-str*)
-    (with-dma-buffer-add-bucket ((buf (-> (current-frame) global-buf)) (bucket-id debug-no-zbuf1))
-      ;; reset bucket settings prior to drawing - font won't do this for us, and
-      ;; draw-raw-image can sometimes mess them up. (intro sequence)
-      (dma-buffer-add-gs-set-flusha buf (alpha-1 (new 'static 'gs-alpha :b #x1 :d #x1)) (tex1-1 (new 'static 'gs-tex1 :mmag #x1 :mmin #x1)))
-      (let ((font-ctx (new 'stack 'font-context *font-default-matrix* 510 100 0.0 (font-color default) (font-flags shadow kerning large right))))
-        (set! (-> font-ctx scale) 0.325)
-        (draw-string-adv *pc-encoded-matt-str* buf font-ctx)))
-)
-
-(when (and (= mushie-unlocked? #t)(= done-it #f)(= in-menu #t)(cpad-hold? 0 r1))
+(when (and (= done-it #f)(>= (-> *game-info* gem) 20.0)(= in-menu #t)(cpad-hold? 0 r1))
   (clear matt-str)
     (clear *pc-encoded-matt-str*)
     (format matt-str "<COLOR_WHITE>R1: <COLOR_YELLOW>~S"
@@ -5146,7 +5134,23 @@ Eco War is similar to BlackJack, but with a twist!
         (draw-string-adv *pc-encoded-matt-str* buf font-ctx)))
         (+! disable-mm 1)
 )
-(when (and (= mushie-unlocked? #t)(= mushroom-movies #t)(= done-it #t)(= in-menu #t)(cpad-hold? 0 r1))
+
+(when (and (<= (-> *game-info* gem) 19.0)(= done-it #f)(= in-menu #t)(cpad-hold? 0 r1))
+  (clear matt-str)
+    (clear *pc-encoded-matt-str*)
+    (format matt-str "<COLOR_WHITE>R1: <COLOR_RED>(NOT ENOUGH GEMS!)"
+    disable-mms
+    )
+    (pc-encode-utf8-string matt-str *pc-encoded-matt-str*)
+    (with-dma-buffer-add-bucket ((buf (-> (current-frame) global-buf)) (bucket-id debug-no-zbuf1))
+      ;; reset bucket settings prior to drawing - font won't do this for us, and
+      ;; draw-raw-image can sometimes mess them up. (intro sequence)
+      (dma-buffer-add-gs-set-flusha buf (alpha-1 (new 'static 'gs-alpha :b #x1 :d #x1)) (tex1-1 (new 'static 'gs-tex1 :mmag #x1 :mmin #x1)))
+      (let ((font-ctx (new 'stack 'font-context *font-default-matrix* 510 100 0.0 (font-color default) (font-flags shadow kerning large right))))
+        (set! (-> font-ctx scale) 0.325)
+        (draw-string-adv *pc-encoded-matt-str* buf font-ctx)))
+)
+(when (and (= done-it #t)(= in-menu #t)(cpad-hold? 0 r1))
   (clear matt-str)
     (clear *pc-encoded-matt-str*)
     (format matt-str "<COLOR_WHITE>R1: <COLOR_GREEN>~S"
@@ -5161,65 +5165,45 @@ Eco War is similar to BlackJack, but with a twist!
         (set! (-> font-ctx scale) 0.325)
         (draw-string-adv *pc-encoded-matt-str* buf font-ctx)))
 )
-(when (and (= mushie-unlocked? #t)(= mushroom-movies #f)(= done-it #t)(= in-menu #t)(cpad-hold? 0 r1))
-  (clear matt-str)
-    (clear *pc-encoded-matt-str*)
-    (format matt-str "<COLOR_WHITE>R1: <COLOR_RED>~S"
-    disable-mms
-    )
-    (pc-encode-utf8-string matt-str *pc-encoded-matt-str*)
-    (with-dma-buffer-add-bucket ((buf (-> (current-frame) global-buf)) (bucket-id debug-no-zbuf1))
-      ;; reset bucket settings prior to drawing - font won't do this for us, and
-      ;; draw-raw-image can sometimes mess them up. (intro sequence)
-      (dma-buffer-add-gs-set-flusha buf (alpha-1 (new 'static 'gs-alpha :b #x1 :d #x1)) (tex1-1 (new 'static 'gs-tex1 :mmag #x1 :mmin #x1)))
-      (let ((font-ctx (new 'stack 'font-context *font-default-matrix* 510 100 0.0 (font-color default) (font-flags shadow kerning large right))))
-        (set! (-> font-ctx scale) 0.325)
-        (draw-string-adv *pc-encoded-matt-str* buf font-ctx)))
-)
 (when (= disable-mm 1)
   (set! disable-mms "(Press and Hold)")
 )
-(when (= disable-mm 3)
+(when (= disable-mm 6)
   (set! disable-mms "(Press and Hold.)")
 )
-(when (= disable-mm 6)
+(when (= disable-mm 12)
   (set! disable-mms "(Press and Hold..)")
 )
-(when (= disable-mm 9)
+(when (= disable-mm 18)
   (set! disable-mms "(Press and Hold...)")
 )
-(when (= disable-mm 12)
+(when (= disable-mm 24)
   (set! disable-mms "(Press and Hold..!)")
 )
-(when (= disable-mm 15)
+(when (= disable-mm 32)
   (set! disable-mms "(Press and Hold.!!)")
 )
-(when (= disable-mm 18)
+(when (= disable-mm 38)
   (set! disable-mms "(Press and Hold!!!)")
 )
-(when (and (= mushie-unlocked? #t)(= in-menu #t)(= done-it #f)(= disable-mm 20)(= mushroom-movies #t))
-  (set! mushroom-movies #f)
-  (set! disable-mm 0)
+
+(when (and (= in-menu #t)(= done-it #f)(>= disable-mm 40))
+  (-! (-> *game-info* gem) 20.0)
   (set! done-it #t)
-  (set! disable-mms "Mushroom Movies Enabled.")
-)
-(when (and (= mushie-unlocked? #t)(= in-menu #t)(= done-it #f)(= disable-mm 20)(= mushroom-movies #f))
-  (set! mushroom-movies #t)
-  (set! disable-mm 0)
-  (set! done-it #t)
-  (set! disable-mms "Mushroom Movies Disabled.")
+  (send-event *target* 'get-pickup (pickup-type ammo-yellow) 1000.0)
+  (send-event *target* 'get-pickup (pickup-type ammo-red) 1000.0)
+  (send-event *target* 'get-pickup (pickup-type ammo-blue) 1000.0)
+  (send-event *target* 'get-pickup (pickup-type ammo-dark) 1000.0)
+  (sound-play "ammo-pickup")
 )
 
-(when (and (cpad-hold? 0 r1)(= mushie-unlocked? #t)(= done-it #t)(= in-menu #t))
-  (when (= mushroom-movies #t)
-    (set! disable-mms "Mushroom Movies Enabled.")
-  )
-  (when (and (= mushie-unlocked? #t)(= mushroom-movies #f))
-    (set! disable-mms "Mushroom Movies Disabled.")
-  )
+
+(when (and (cpad-hold? 0 r1)(= done-it #t)(= in-menu #t))
+    (set! disable-mms "Ammo Full.")
 )
-(when (and (not (cpad-hold? 0 r1))(= mushie-unlocked? #t)(= done-it #t)(= in-menu #t))
+(when (and (not (cpad-hold? 0 r1))(= done-it #t)(= in-menu #t))
   (set! done-it #f)
+  (set! disable-mm 0)
 )
 
 
@@ -5241,7 +5225,7 @@ Eco War is similar to BlackJack, but with a twist!
   (set! death-counter-int (-> *game-info* total-deaths))
   (clear matt-str)
     (clear *pc-encoded-matt-str*)
-    (format matt-str "<COLOR_YELLOW>Death Counter: <COLOR_RED>~d"
+    (format matt-str "<COLOR_YELLOW>Death Count: <COLOR_RED>~d"
     (the-as int (-> *game-info* total-deaths))
     )
     (pc-encode-utf8-string matt-str *pc-encoded-matt-str*)
@@ -5270,7 +5254,7 @@ Eco War is similar to BlackJack, but with a twist!
 
 )
 
-(when (and (= in-menu #t)(= menu-slot 0)(= menu-pressed? #t)(cpad-pressed? 0 square)) ;Selected Gun Mod!
+(when (and (= in-menu #t)(= menu-pressed? #t)(cpad-pressed? 0 square)) ;Selected Gun Mod!
   (set! menu-activate #t)
   ;-------------------------rapid-fire-int--------------------------------
   (when (and (= rapid-fire-option #t)(= weapon-id 1)(= sub-menu-slot 0))
@@ -5470,7 +5454,7 @@ Eco War is similar to BlackJack, but with a twist!
       (+! sub-menu-slot 1)
       (set! menu-activate #t)
 
-     (when (and (= menu-pressed? #f) (>= menu-slot 8)) ;max options for menu left
+     (when (and (= menu-pressed? #f) (> menu-slot 8)) ;max options for menu left
       (set! menu-slot 8)
       (set! menu-activate #t)
     )
