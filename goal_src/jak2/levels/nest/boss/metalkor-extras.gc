@@ -1955,7 +1955,7 @@ This commonly includes things such as:
   (when (and (> (-> *target* fact health) 1.0)(= peacemaker-ability #t))
       (set! (-> *target* fact health) 1.0)
     )
-  (when (and (> (-> *target* fact health) 1.0)(= tp-fb #t))
+  (when (and (> (-> *target* fact health) 1.0)(= stored-cp? #t))
       (set! (-> *target* fact health) 1.0)
     )
   (logior! (-> this flags) (hud-flags show))

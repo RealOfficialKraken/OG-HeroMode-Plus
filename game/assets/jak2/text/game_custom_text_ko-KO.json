@@ -88,7 +88,7 @@
   "124d": "Disable Auto-Save",
   "124e": "Auto-Save Disabled",
   "124f": "Are you sure you want to disable auto-save?",
-  "1250": "Turbo JET-Board in Haven City",
+  "1250": "Mushroom Movies",
   "1251": "Enemy Health Bars",
   "1252": "Vehicle Health Bars",
   "1253": "Vehicle Invulnerability",
@@ -160,5 +160,6 @@
   "1312": "Any% - Hero Mode",
   "1313": "Local Time",
   "1314": "Warning!",
-  "1315": "This setting is highly experimental. When not played at 60 frames per second, visual and gameplay issues may arise as a result."
+  "1315": "This setting is highly experimental. When not played at 60 frames per second, visual and gameplay issues may arise as a result.",
+  "1340": "Mushroom Movies"
 }
