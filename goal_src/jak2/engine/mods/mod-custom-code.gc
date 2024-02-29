@@ -1072,7 +1072,7 @@ FINISHED :D
       (set! mag-bag-int 0)
     )
   )
-  (when (and (= orb-grab-2 #f)(= hell-mode-option #f)(>= (-> *game-info* skill) 286.0)) ;when a certain amount of orbs or higher, get mehrunes-shot
+  (when (and (= orb-grab-2 #f)(= hell-mode-option #f)(>= (-> *game-info* skill) 130.0)) ;when a certain amount of orbs or higher, get mehrunes-shot
     (set! recieved-gm-s8 "Mehrunes Shot!")
     (set! recieved-gm8 #t)
     (sound-play "ammo-pickup")
@@ -1137,7 +1137,7 @@ FINISHED :D
     (set! orb-grab-1 #f)
     (set! mushie-unlocked? #f)
   )
-  (when (and (= orb-grab-2 #t)(= hell-mode-option #f)(< (-> *game-info* skill) 286.0))
+  (when (and (= orb-grab-2 #t)(= hell-mode-option #f)(< (-> *game-info* skill) 130.0))
     (set! mehrunes-shot-option #f)
     (set! mehrunes-shot-int 0)
     (set! orb-grab-2 #f)
@@ -1841,7 +1841,7 @@ FINISHED :D
   )
   (when (and (and (= frame-count 40)(= new-game-s? #t)(= stored-cp? #t))) ;starts after a little bit to avoid crashes, teleports jak to final boss spawnpoint and sets the game task
     (play-task (game-task nest-boss) 'debug #f)
-    ;(set! pause-menu-blocked? #t)
+    (set! pause-menu-blocked? #t)
     (when (= hell-mode-option #t)
       (set! (-> *game-info* fuel) 10.0)
       (print "[MOD] Hellmode #t, good luck during this fight }:)
@@ -5691,7 +5691,7 @@ Eco War is similar to BlackJack, but with a twist!
       (set! menu-activate #t)
       )
     (when (and (= menu-pressed? #f) (< menu-slot 0)) ;max options for menu left
-      (set! menu-slot 0)
+      (set! menu-slot 8)
       (set! menu-activate #t)
     )
     (when (and (= menu-pressed? #f) (> sub-menu-slot 4)) ;max options for menu left
@@ -5710,14 +5710,14 @@ Eco War is similar to BlackJack, but with a twist!
       (set! sub-menu-slot 0)
       (set! menu-activate #t)
     )
+    (when (and (= menu-pressed? #f) (> menu-slot 8)) ;max options for menu left
+      (set! menu-slot 0)
+      (set! menu-activate #t)
+    )
       (when (= menu-pressed? #t)
       (+! sub-menu-slot 1)
       (set! menu-activate #t)
 
-     (when (and (= menu-pressed? #f) (> menu-slot 8)) ;max options for menu left
-      (set! menu-slot 8)
-      (set! menu-activate #t)
-    )
     (when (and (= menu-pressed? #f) (> sub-menu-slot 4)) ;max options for menu right
       (set! sub-menu-slot 0)
       (set! menu-activate #t)
