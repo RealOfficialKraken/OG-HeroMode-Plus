@@ -145,11 +145,11 @@ FINISHED :D
 
 
 
+;new game for granger but in progress!
 
 
 
-
-(when (and (= in-menu #t)(= (-> *game-info* task-deaths) 4))
+#|(when (and (= in-menu #t)(= (-> *game-info* task-deaths) 4))
   (clear matt-str)
       (clear *pc-encoded-matt-str*)
     (format matt-str "<COLOR_WHITE>L1: <COLOR_PINK>New Game in Apocalypse Mode ~S"
@@ -269,7 +269,7 @@ FINISHED :D
   )
 )
 
-
+|#
 (when (and (= (pause-allowed?) #t)(= granger-ohshitalways #t))
   (set! (-> (level-get-target-inside *level*) mood-func)update-mood-nest)
   (send-event (ppointer->process *time-of-day*) 'change 'ratio 140.0) 
@@ -448,7 +448,7 @@ FINISHED :D
   (set! orb-grab-3 #f)
   (set! mod-pick #t)
 )
-#| disabled until release.
+
 ;DISABLING ALL OF THE POWERFUL SECRETS
   (when (and (= granger-mode #f)(= (-> *game-info* fuel) 10.0))
     (when (and (= settingunlocked2 #f)(logtest? (-> *game-info* secrets) (game-secrets endless-ammo)))
@@ -465,7 +465,7 @@ FINISHED :D
   )
 
 
-|#
+
 
 ;WEAPON MOD SPAWNS, REWARDS, AND SAVES
 ;Once a legendary is spawned it unlocks it for you. Later ill figure how to do it upon pickup, but for now I have no fucking clue. :L
