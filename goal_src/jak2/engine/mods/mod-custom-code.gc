@@ -1088,6 +1088,7 @@ FINISHED :D
     (set! orb-grab-2 #t)
     (set! mehrunes-shot-option #t)
   )
+  #|
   (when (and (= orb-grab-3 #f)(= (-> *game-info* skill) 10))
     (set! recieved-gm9 #t)
     (sound-play "ammo-pickup")
@@ -1101,6 +1102,7 @@ FINISHED :D
     (set! orb-grab-3 #f)
     (set! mushroom-movies #f)
   )
+  |#
   ;looks for if their missions become un-completed after setting them, then takes away mission gun mods respectively
   (when (and (!= (-> *game-info* fuel) 10.0)(not (task-node-closed? (game-task-node city-krew-delivery-resolution)))(= mission-grab-1 #t))
     (set! mission-grab-1 #f)
@@ -4769,7 +4771,7 @@ Eco War is similar to BlackJack, but with a twist!
         (draw-string-adv *pc-encoded-matt-str* buf font-ctx)))
         (set! gm-start8 #t)
 )
-
+#|
 (when (and (= in-menu #f)(= recieved-gm9 #t)) ;looks for recieving mushroom movies secret.
   (clear matt-str)
     (clear *pc-encoded-matt-str*)
@@ -4785,7 +4787,7 @@ Eco War is similar to BlackJack, but with a twist!
         (set! (-> font-ctx scale) 0.325)
         (draw-string-adv *pc-encoded-matt-str* buf font-ctx)))
         (set! gm-start9 #t)
-)
+)|#
 
 )
 (when (and (= menu-pressed? #f)(= string-printed? #t)) ;draws the gunmod section
