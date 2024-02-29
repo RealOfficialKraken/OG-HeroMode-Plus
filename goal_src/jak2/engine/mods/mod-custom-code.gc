@@ -1873,34 +1873,36 @@ FINISHED :D
 ")
   )
   (when (and (= going-back-tp #t)(= tp-fb-win #f)(> frame-count 80)(= (pause-allowed?) #t)) ;resets everything back to original state AFTER the game-load, to avoid crashes.
-    (set! stored-cp? #f)
-    (set! going-back-tp #f)
-    (set! start-frame-count #f)
-    (set! pause-menu-blocked? #f)
-    (set! frame-count 0)
     (when (= hell-mode-option #t)
       (set! (-> *game-info* fuel) 10.0)
+      (set! rapid-fire-option #t)
+      (set! double-tap-option #t)
+      (set! guard-shot-option #t)
+      (set! guard-grenade-option #t)
+      (set! mission-grab-1 #t)
+      (set! mission-grab-2 #t)
+      (set! mission-grab-3 #t)
+      (set! mission-grab-4 #t)
     )
     (when (= hell-mode-option #f)
       (set! (-> *game-info* fuel) 2.0)
+      (set! mission-grab-1 #f)
+      (set! mission-grab-2 #f)
+      (set! mission-grab-3 #f)
+      (set! mission-grab-4 #f)
     )
     (set! weapon-mod-toggle #t)
-    (set! mission-grab-1 #f)
-    (set! mission-grab-2 #f)
-    (set! mission-grab-3 #f)
-    (set! mission-grab-4 #f)
     (print "[MOD] You died!! POGGERS!!! (PLAQUE:) I logged 42 hours on this particular problem alone ;-;
 ")
     (set! pickup-save #f)
     (set! pickup-frame 0)
     (+! (-> *game-info* total-deaths) 1)
     (set! auto-save-delayed? #t)
-    (when (= (-> *game-info* fuel) 10.0)
-      (set! rapid-fire-option #t)
-      (set! double-tap-option #t)
-      (set! guard-shot-option #t)
-      (set! guard-grenade-option #t)
-    )
+    (set! stored-cp? #f)
+    (set! going-back-tp #f)
+    (set! start-frame-count #f)
+    (set! pause-menu-blocked? #f)
+    (set! frame-count 0)
   )
 
   (when (and (= stored-cp? #t)(= tp-fb-win #t))   ;runs after winning the final boss fight in tp-fb
@@ -5694,11 +5696,11 @@ Eco War is similar to BlackJack, but with a twist!
       (set! menu-slot 8)
       (set! menu-activate #t)
     )
-    (when (and (= menu-pressed? #f) (> sub-menu-slot 4)) ;max options for menu left
+    (when (and (= menu-pressed? #t) (> sub-menu-slot 4)) ;max options for menu left
       (set! sub-menu-slot 0)
       (set! menu-activate #t)
     )
-    (when (and (= menu-pressed? #f) (< sub-menu-slot 0)) ;max options for menu left
+    (when (and (= menu-pressed? #t) (< sub-menu-slot 0)) ;max options for menu left
       (set! sub-menu-slot 4)
       (set! menu-activate #t)
     )
@@ -5718,7 +5720,7 @@ Eco War is similar to BlackJack, but with a twist!
       (+! sub-menu-slot 1)
       (set! menu-activate #t)
 
-    (when (and (= menu-pressed? #f) (> sub-menu-slot 4)) ;max options for menu right
+    (when (and (= menu-pressed? #t) (> sub-menu-slot 4)) ;max options for menu right
       (set! sub-menu-slot 0)
       (set! menu-activate #t)
     )
@@ -5839,7 +5841,7 @@ Eco War is similar to BlackJack, but with a twist!
 ;this whole block creates the hint to pull up selection for weapon mods
 (when (and *target* (not *scene-player*))
 
-  ;popup text for pressing r3
+  ;popup text for pressing r3 upon first level boot
   (when (and (= (-> (level-get-target-inside *level*) name) 'prison)(cpad-pressed? 0 r3)(= weapon-mod-toggle #f)(= weapon-toggle-false? #f)(not (task-node-closed? (game-task-node city-help-kid-introduction)))) ;is new game initialized?
     (set! menu2-wait #t)
   )
@@ -5921,6 +5923,7 @@ Eco War is similar to BlackJack, but with a twist!
   (process-release? *target*)
   (initialize! *game-info* 'dead (the-as game-save #f) (the-as string #f))
   (set! (-> *game-info* total-deaths) 0)
+  (set! popup-hint-gm #t)
 )
 (when (and (= in-menu-2 #t)(= yes-no #f)(cpad-pressed? 0 x))
   (set! weapon-mod-toggle #f)
@@ -6104,6 +6107,35 @@ Eco War is similar to BlackJack, but with a twist!
     (set! popup-time 0)
     (set! popup3-start #f)
   )
+)
+
+(when (= popup-hint-gm #t)
+  (+! popup-hint-gmi 1)
+
+  (clear matt-str)
+      (clear *pc-encoded-matt-str*)
+    (format matt-str "
+  <COLOR_WHITE>Press <COLOR_RED>R3 <COLOR_WHITE> to view Mod Menu!"
+  bj-dealer-s
+      )
+      (pc-encode-utf8-string matt-str *pc-encoded-matt-str*)
+      (with-dma-buffer-add-bucket ((buf (-> (current-frame) global-buf)) (bucket-id debug-no-zbuf1))
+
+
+        (dma-buffer-add-gs-set-flusha buf (alpha-1 (new 'static 'gs-alpha :b #x1 :d #x1)) (tex1-1 (new 'static 'gs-tex1 :mmag #x1 :mmin #x1)))
+        (let ((font-ctx (new 'stack 'font-context *font-default-matrix* 260 280 0.0 (font-color default) (font-flags middle shadow kerning large))))
+          (set! (-> font-ctx scale) 0.325)
+          (draw-string-adv *pc-encoded-matt-str* buf font-ctx)))
+
+  (when (= popup-hint-gmi 1000)
+    (set! popup-hint-gmi 0)
+    (set! popup-hint-gm #f)
+  )
+)
+
+(when (and (= popup-hint-gm #t) (cpad-pressed? 0 r3))
+  (set! popup-hint-gmi 0)
+  (set! popup-hint-gm #f)
 )
 
 

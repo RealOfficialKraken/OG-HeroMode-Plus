@@ -573,6 +573,8 @@ CURRENT BUGS:
 (define popup-tpfb-tn 0)
 (define popup-tpfb-h #f)
 (define popup-tpfb-th 0)
+(define popup-hint-gm #f)
+(define popup-hint-gmi 0)
 (define-extern recieved-gm-s string)
 (define-extern recieved-gm-s2 string)
 (define-extern recieved-gm-s3 string)
