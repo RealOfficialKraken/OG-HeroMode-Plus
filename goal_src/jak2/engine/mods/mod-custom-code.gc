@@ -6115,7 +6115,7 @@ Eco War is similar to BlackJack, but with a twist!
   (clear matt-str)
       (clear *pc-encoded-matt-str*)
     (format matt-str "
-  <COLOR_WHITE>Press <COLOR_RED>R3 <COLOR_WHITE> to view Mod Menu!"
+  <COLOR_WHITE>Press <COLOR_RED>R3 <COLOR_WHITE>to view Mod Menu!"
   bj-dealer-s
       )
       (pc-encode-utf8-string matt-str *pc-encoded-matt-str*)
